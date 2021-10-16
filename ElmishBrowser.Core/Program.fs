@@ -1,13 +1,42 @@
-// Learn more about F# at http://docs.microsoft.com/dotnet/fsharp
+module ElmishBrowser.Core.Program
 
-open System
+open Serilog
+open Serilog.Extensions.Logging
+open Elmish.WPF
 
-// Define a function to construct a message to print
-let from whom =
-    sprintf "from %s" whom
+type Model =
+    { 
+        None: int
+    }
 
-[<EntryPoint>]
-let main argv =
-    let message = from "F#" // Call the function
-    printfn "Hello world %s" message
-    0 // return an integer exit code
+type Msg =
+    | None
+
+let init =
+    {
+        None = 0 
+    }
+
+let update msg m = 
+    match msg with 
+    | None -> m
+
+let bindings () : Binding<Model, Msg> list = 
+    [
+        
+    ]
+
+let getDesignVm (m:'T, b:Binding<_, _> list) = ViewModel.designInstance m b
+
+let main window webView =
+    let logger =
+        LoggerConfiguration()
+            .MinimumLevel.Override("Elmish.WPF.Update", Events.LogEventLevel.Verbose)
+            .MinimumLevel.Override("Elmish.WPF.Bindings", Events.LogEventLevel.Verbose)
+            .MinimumLevel.Override("Elmish.WPF.Performance", Events.LogEventLevel.Verbose)
+            .WriteTo.Console()
+            .CreateLogger()
+    
+    WpfProgram.mkSimple (fun () -> init) update bindings
+    |> WpfProgram.withLogger (new SerilogLoggerFactory(logger))
+    |> WpfProgram.startElmishLoop window
