@@ -28,7 +28,7 @@ let bindings () : Binding<Model, Msg> list =
 
 let getDesignVm (m:'T, b:Binding<_, _> list) = ViewModel.designInstance m b
 
-let main window webView =
+let main window =
     let logger =
         LoggerConfiguration()
             .MinimumLevel.Override("Elmish.WPF.Update", Events.LogEventLevel.Verbose)
