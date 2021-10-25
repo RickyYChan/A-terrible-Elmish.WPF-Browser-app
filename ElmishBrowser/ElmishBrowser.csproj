@@ -1,9 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <TargetFramework>net5.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
+	<DisableWinExeOutputInference>true</DisableWinExeOutputInference> <!-- log -->
+    <ApplicationIcon />
+    <StartupObject />
   </PropertyGroup>
 
   <ItemGroup>
