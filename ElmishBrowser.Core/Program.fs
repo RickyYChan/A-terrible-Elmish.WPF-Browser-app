@@ -3,13 +3,13 @@ module ElmishBrowser.Core.Program
 open Serilog
 open Serilog.Extensions.Logging
 open Elmish.WPF
-open System.Windows.Media
 open System.Windows
 
 [<AutoOpen>]
 module FWColor = begin 
+    type Color = System.Windows.Media.Brushes
     let accent = Application.Current.Resources.["ImmersiveSystemAccentBrush"]
-    let transparent = Brushes.Transparent :> obj 
+    let transparent = Color.Transparent :> obj 
     end 
 
 module Tab = begin
