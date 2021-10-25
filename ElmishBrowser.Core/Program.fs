@@ -4,6 +4,13 @@ open Serilog
 open Serilog.Extensions.Logging
 open Elmish.WPF
 open System.Windows.Media
+open System.Windows
+
+[<AutoOpen>]
+module FWColor = begin 
+    let accent = Application.Current.Resources.["ImmersiveSystemAccentBrush"]
+    let transparent = Brushes.Transparent :> obj 
+    end 
 
 module Tab = begin
     type TabItem = 
@@ -44,10 +51,7 @@ module App = begin
                         "TabContent" |> Binding.oneWay(fun (m, (i, t)) -> t.Content) 
                         "SelectItem" |> Binding.cmd(fun (m, (i, t)) -> Select (Some i))
                         "TabBg" |> Binding.oneWay(fun (m, (i, t)) -> 
-                            if Some i = m.SelectedId
-                            then Brushes.Blue
-                            else Brushes.Transparent
-                        )
+                            if Some i = m.SelectedId then accent else transparent)
                     ])
             )
         ]
