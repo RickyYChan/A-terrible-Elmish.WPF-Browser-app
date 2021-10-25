@@ -3,36 +3,35 @@ module ElmishBrowser.Core.Program
 open Serilog
 open Serilog.Extensions.Logging
 open Elmish.WPF
+open System.Windows.Media
+
 module Tab = begin
     type TabItem = 
         {
             Content: obj 
         }
-    type Msg = None
-    let init = { Content = "Hello world!" }
-    let update msg m = m 
-    //let bindings () : Binding<TabItem, Msg> list = 
-    //    [
-    //        "TabContent" |> Binding.oneWay (fun m -> m.Content)
-    //    ]
     end 
 module App = begin
     type Model =
         { 
             Tabs: Tab.TabItem list 
+            SelectedId: int option
         }
     
     type Msg =
         | AddTab
+        | Select of int option
     
     let init =
         {
             Tabs = [ ] |> List.mapi(fun i x -> { Content = $"Hello {x}" })
+            SelectedId = None
         }
     
     let update msg m = 
         match msg with 
         | AddTab -> { m with Tabs = { Content = $"Hello {m.Tabs.Length}" } :: m.Tabs }
+        | Select i -> { m with SelectedId = i }
     
     let bindings () : Binding<Model, Msg> list = 
         [
@@ -42,7 +41,13 @@ module App = begin
                 (fun (i, t) -> i), 
                 (fun () -> 
                     [
-                        "TabContent" |> Binding.oneWay(fun (m, (i, t)) -> t.Content)   
+                        "TabContent" |> Binding.oneWay(fun (m, (i, t)) -> t.Content) 
+                        "SelectItem" |> Binding.cmd(fun (m, (i, t)) -> Select (Some i))
+                        "TabBg" |> Binding.oneWay(fun (m, (i, t)) -> 
+                            if Some i = m.SelectedId
+                            then Brushes.Blue
+                            else Brushes.Transparent
+                        )
                     ])
             )
         ]

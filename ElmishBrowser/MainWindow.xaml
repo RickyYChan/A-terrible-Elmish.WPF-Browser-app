@@ -43,10 +43,11 @@
                     <Button Style="{StaticResource ButtonAccentRevealStyle}"
                             Content="{Binding TabContent}"
                             Padding="10, 0, 10, 0"
-                            Background="Transparent"
+                            Background="{Binding TabBg}"
                             BorderBrush="Transparent"
                             BorderThickness="0"
                             Height="30"
+                            Command="{Binding SelectItem}"
                             />
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
