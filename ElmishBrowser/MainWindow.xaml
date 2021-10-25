@@ -24,13 +24,14 @@
                    fw:PointerTracker.Enabled="True"
                    >
             <!-- horizontal aligment: 新控件相对旧控件的位置.  -->
-            <Button Content="Foo" 
+            <Button Content="Add Tab" 
                     Padding="10, 0, 10 ,0"
                     Style="{StaticResource ButtonRevealStyle}" 
                     DockPanel.Dock="Left" 
                     Background="Transparent" 
                     BorderThickness="0" 
                     BorderBrush="Transparent"
+                    Command="{Binding AddTabCmd}"
                     />
         </DockPanel>
 

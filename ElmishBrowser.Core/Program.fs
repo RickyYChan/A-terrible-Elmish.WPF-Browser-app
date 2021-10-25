@@ -6,11 +6,10 @@ open Elmish.WPF
 module Tab = begin
     type TabItem = 
         {
-            Guid: int
             Content: obj 
         }
     type Msg = None
-    let init = { Guid = 0; Content = "Hello world!" }
+    let init = { Content = "Hello world!" }
     let update msg m = m 
     //let bindings () : Binding<TabItem, Msg> list = 
     //    [
@@ -24,26 +23,26 @@ module App = begin
         }
     
     type Msg =
-        | None
+        | AddTab
     
     let init =
         {
-            Tabs = [ 0 .. 5 ] |> List.mapi(fun i x -> { Guid = i; Content = $"Hello {x}" })
+            Tabs = [ ] |> List.mapi(fun i x -> { Content = $"Hello {x}" })
         }
     
     let update msg m = 
         match msg with 
-        | None -> m 
+        | AddTab -> { m with Tabs = { Content = $"Hello {m.Tabs.Length}" } :: m.Tabs }
     
     let bindings () : Binding<Model, Msg> list = 
         [
-
+            "AddTabCmd" |> Binding.cmd AddTab
             "TabSource" |> Binding.subModelSeq(
-                (fun m -> m.Tabs), 
-                (fun t -> t.Guid), 
+                (fun m -> m.Tabs |> List.indexed), 
+                (fun (i, t) -> i), 
                 (fun () -> 
                     [
-                        "TabContent" |> Binding.oneWay(fun (m, t) -> t.Content)   
+                        "TabContent" |> Binding.oneWay(fun (m, (i, t)) -> t.Content)   
                     ])
             )
         ]
