@@ -2,7 +2,7 @@
 using System;
 using System.Windows;
 
-namespace ElmishBrwoser
+namespace ElmishBrowser
 {
     public partial class App : Application
     {
