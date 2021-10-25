@@ -9,11 +9,11 @@
              x:Name="Self"
              >
     <Button Style="{DynamicResource ButtonAccentRevealStyle}"
-            Content="{Binding ContentElement, ElementName=Self}"
-            Background="Transparent"
-            BorderThickness="0"
-            BorderBrush="Transparent"
-            Padding="10, 0, 10, 0"
+            Content="{Binding ElementContent, ElementName=Self}"
+            Background="{Binding ElementBackground, ElementName=Self}"
+            BorderThickness="{Binding ElementBorderThickness, ElementName=Self}"
+            BorderBrush="{Binding ElementBorderBrush, ElementName=Self}"
+            Padding="{Binding ElementPadding, ElementName=Self}"
             Click="Self_Click"
             />
 </UserControl>

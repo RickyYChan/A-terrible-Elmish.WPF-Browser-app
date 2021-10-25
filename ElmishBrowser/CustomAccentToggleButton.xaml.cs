@@ -8,14 +8,48 @@ namespace ElmishBrowser
     public partial class CustomAccentToggleButton : UserControl
     {
         /* New Content Prop */
-        public object ContentElement
+        public object ElementContent
         {
-            get { return GetValue(ContentElementProperty); }
-            set { SetValue(ContentElementProperty, value); }
+            get { return GetValue(ElementContentProperty); }
+            set { SetValue(ElementContentProperty, value); }
         }
-        public static readonly DependencyProperty ContentElementProperty =
-            DependencyProperty.Register("ContentElement", typeof(object), typeof(CustomAccentToggleButton), new PropertyMetadata(null));
-        /* Custom IsChecked Prop */
+        public static readonly DependencyProperty ElementContentProperty =
+            DependencyProperty.Register("ElementContent", typeof(object), typeof(CustomAccentToggleButton), new PropertyMetadata(null));
+        /* New background */
+        public Brush ElementBackground
+        {
+            get { return (Brush)GetValue(ElementBackgroundProperty); }
+            set { SetValue(ElementBackgroundProperty, value); }
+        }
+        public static readonly DependencyProperty ElementBackgroundProperty =
+            DependencyProperty.Register("ElementBackground", typeof(Brush), typeof(CustomAccentToggleButton), new PropertyMetadata(Brushes.Transparent));
+        /* New border thickness */
+        public Thickness ElementBorderThickness
+        {
+            get { return (Thickness)GetValue(ElementBorderThicknessProperty); }
+            set { SetValue(ElementBorderThicknessProperty, value); }
+        }
+        public static readonly DependencyProperty ElementBorderThicknessProperty =
+            DependencyProperty.Register("ElementBorderThickness", typeof(Thickness), typeof(CustomAccentToggleButton), new PropertyMetadata(new Thickness(0)));
+        /* New border brush */
+        public Brush ElementBorderBrush
+        {
+            get { return (Brush)GetValue(ElementBorderBrushProperty); }
+            set { SetValue(ElementBorderBrushProperty, value); }
+        }
+        public static readonly DependencyProperty ElementBorderBrushProperty =
+            DependencyProperty.Register("ElementBorderBrush", typeof(Brush), typeof(CustomAccentToggleButton), new PropertyMetadata(Brushes.Transparent));
+        /* New padding */
+        public Thickness ElementPadding
+        {
+            get { return (Thickness)GetValue(ElementPaddingProperty); }
+            set { SetValue(ElementPaddingProperty, value); }
+        }
+        public static readonly DependencyProperty ElementPaddingProperty =
+            DependencyProperty.Register("ElementPadding", typeof(Thickness), typeof(CustomAccentToggleButton), new PropertyMetadata(new Thickness(10, 0, 10, 0)));
+        /* 
+            Custom IsChecked Prop 
+        */
         public bool IsChecked
         {
             get { return (bool)GetValue(IsCheckedProperty); }

@@ -11,6 +11,31 @@
         fw:AcrylicWindow.FallbackColor="{DynamicResource SystemBaseHighColorBrush}"
         fw:AcrylicWindow.AcrylicWindowStyle="NoIcon"
         >
-    
-    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <DockPanel Grid.Row="0"
+                   FlowDirection="RightToLeft" 
+                   HorizontalAlignment="Right" 
+                   LastChildFill="False" 
+                   fw:PointerTracker.Enabled="True"
+                   >
+            <!-- horizontal aligment: 新控件相对旧控件的位置.  -->
+            <Button Content="Foo" 
+                    Padding="10, 0, 10 ,0"
+                    Style="{StaticResource ButtonRevealStyle}" 
+                    DockPanel.Dock="Left" 
+                    Background="Transparent" 
+                    BorderThickness="0" 
+                    BorderBrush="Transparent"
+                    />
+        </DockPanel>
+        
+        
+        
+    </Grid>
+
 </Window>
