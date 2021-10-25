@@ -3,12 +3,14 @@ module ElmishBrowser.Core.Program
 open Serilog
 open Serilog.Extensions.Logging
 open Elmish.WPF
-open System.Windows
 
 [<AutoOpen>]
+/// use static classes: System.Windows.Media.Brushes and System.Windows.Application.    
+/// can use mkProgramWithCmdMsg as an alternative.   
+/// seems dirty.  
 module FWColor = begin 
     type Color = System.Windows.Media.Brushes
-    let accent = Application.Current.Resources.["ImmersiveSystemAccentBrush"]
+    let accent = System.Windows.Application.Current.Resources.["ImmersiveSystemAccentBrush"]
     let transparent = Color.Transparent :> obj 
     end 
 
