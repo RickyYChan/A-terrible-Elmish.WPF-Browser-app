@@ -39,7 +39,14 @@
                       >
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <local:CustomAccentToggleButton ElementContent="{Binding TabContent}" Height="30"/>
+                    <Button Style="{StaticResource ButtonAccentRevealStyle}"
+                            Content="{Binding TabContent}"
+                            Padding="10, 0, 10, 0"
+                            Background="Transparent"
+                            BorderBrush="Transparent"
+                            BorderThickness="0"
+                            Height="30"
+                            />
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
             <ItemsControl.ItemsPanel>

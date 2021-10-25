@@ -37,6 +37,7 @@ module App = begin
     
     let bindings () : Binding<Model, Msg> list = 
         [
+
             "TabSource" |> Binding.subModelSeq(
                 (fun m -> m.Tabs), 
                 (fun t -> t.Guid), 
