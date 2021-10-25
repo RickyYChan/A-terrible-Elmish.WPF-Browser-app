@@ -33,9 +33,31 @@
                     BorderBrush="Transparent"
                     />
         </DockPanel>
-        
-        
-        
+
+        <ItemsControl Grid.Row="1" 
+                      ItemsSource="{Binding TabSource}"
+                      >
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <local:CustomAccentToggleButton ElementContent="{Binding TabContent}" Height="30"/>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel Orientation="Horizontal"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.Template>
+                <ControlTemplate TargetType="ItemsControl">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  >
+                        <ItemsPresenter/>
+                    </ScrollViewer>
+                </ControlTemplate>
+            </ItemsControl.Template>
+            
+        </ItemsControl>
     </Grid>
 
 </Window>
