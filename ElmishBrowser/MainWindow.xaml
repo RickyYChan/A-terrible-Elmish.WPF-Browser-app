@@ -10,6 +10,7 @@
         fw:AcrylicWindow.Enabled="True"
         fw:AcrylicWindow.FallbackColor="{DynamicResource SystemBaseHighColorBrush}"
         fw:AcrylicWindow.AcrylicWindowStyle="NoIcon"
+        d:DataContext="{x:Static local:DesignViewModels.MainWindowDesignVm}"
         >
     <Grid>
         <Grid.RowDefinitions>
