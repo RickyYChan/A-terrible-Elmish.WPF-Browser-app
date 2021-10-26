@@ -33,24 +33,23 @@ module App = begin
     type Model =
         { 
             Tabs: Tab.TabItem ImmutableList
-            SelectedId: int option
+            SelectedId: int
         }
     
     type Msg =
         | AddTab
-        | Select of int option
+        | Select of int
     
     let init =
         {
             Tabs = ImmutableList.Empty
-            SelectedId = Some -1
+            SelectedId = -1
         }, Cmd.none
     
     let update msg m = 
         match msg with 
         | AddTab -> { m with Tabs = m.Tabs |> IList.add { Content = $"Hello {m.Tabs |> len}" } }, 
-                    //Cmd.ofMsg (Select (m.SelectedId |> Option.map ((+) 1)))
-                    Cmd.ofMsg (Select (Some m.Tabs.Count))
+                    Cmd.ofMsg (Select m.Tabs.Count)
         | Select i -> { m with SelectedId = i }, Cmd.none
     
     let bindings () : Binding<Model, Msg> list = 
@@ -62,10 +61,9 @@ module App = begin
                 (fun () -> 
                     [
                         "TabContent" |> Binding.oneWay(fun (m, (i, t)) -> t.Content) 
-                        "SelectItem" |> Binding.cmd(fun (m, (i, t)) -> Select (Some i))
+                        "SelectItem" |> Binding.cmd(fun (m, (i, t)) -> Select i)
                         "TabBg" |> Binding.oneWay(fun (m, (i, t)) -> 
-                            if Some i = m.SelectedId 
-                            then accent else transparent)
+                            if i = m.SelectedId then accent else transparent)
                     ])
             )
         ]
