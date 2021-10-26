@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:fw="clr-namespace:SourceChord.FluentWPF;assembly=FluentWPF"
+        xmlns:wv="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         xmlns:local="clr-namespace:ElmishBrowser"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800"
@@ -36,7 +37,7 @@
                     />
         </DockPanel>
 
-        <ItemsControl Grid.Row="1" 
+        <ItemsControl Grid.Row="0" 
                       ItemsSource="{Binding TabSource}"
                       >
             <ItemsControl.ItemTemplate>
@@ -66,8 +67,31 @@
                     </ScrollViewer>
                 </ControlTemplate>
             </ItemsControl.Template>
-            
         </ItemsControl>
+        
+        <!-- use grid -->
+        <ItemsControl Grid.Row="1">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <Button Content="foo" 
+                       HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                       HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center"
+                       Background="Blue"
+                       />
+            <Button Content="bar" 
+                       HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                       HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center"
+                       Background="Blue"
+                    Visibility="Hidden"
+                    
+                       />
+        </ItemsControl>
+        <!-- use grid -->
     </Grid>
 
 </Window>
