@@ -11,7 +11,7 @@ module IList =
     open System.Collections.Immutable
     let len = Seq.length
     let add d (x:ImmutableList<_>) = x.Add d 
-    let rm ind (x:ImmutableList<_>) = x.RemoveAt ind 
+    let rmat ind (x:ImmutableList<_>) = x.RemoveAt ind 
     let init = ImmutableList.CreateRange
 
 [<AutoOpen>]
@@ -40,24 +40,30 @@ module App =
         }
     
     type Msg =
-        //| AddTab
+        | AddTab
+        | RemoveSelected
         | Select of int
     
     let init =
         {
             Tabs = { 0 .. 5 } |> Seq.map(fun x -> { Content = $"Hello {x}" }) |> IList.init
             SelectedId = -1
-        }, Cmd.none
+        }
+        //, Cmd.none
+        , Cmd.ofMsg (Select 0)
     
     let update msg m = 
         match msg with 
-        //| AddTab -> { m with Tabs = m.Tabs |> IList.add { Content = $"Hello {m.Tabs |> len}" } }, 
-        //            Cmd.ofMsg (Select m.Tabs.Count)
+        | AddTab -> { m with Tabs = m.Tabs |> IList.add { Content = $"Hello {m.Tabs |> len}" } }, 
+                    Cmd.ofMsg (Select m.Tabs.Count)
         | Select i -> { m with SelectedId = i }, Cmd.none
+        | RemoveSelected -> (if m.Tabs.Count = 0 then m else { m with Tabs = m.Tabs |> IList.rmat m.SelectedId }), 
+                            Cmd.ofMsg (Select (m.Tabs.Count - 2))
     
     let bindings () : Binding<Model, Msg> list = 
         [
-            //"AddTabCmd" |> Binding.cmd AddTab
+            "AddTabCmd" |> Binding.cmd AddTab
+            "RmTabCmd" |> Binding.cmd RemoveSelected
             "TabSource" |> Binding.subModelSeq(
                 (fun m -> m.Tabs |> Seq.indexed), 
                 (fun (i, t) -> i), 
@@ -66,12 +72,14 @@ module App =
                         "SelectItem" |> Binding.cmd(fun (m, (i, t)) -> Select i)
                         "TabBg" |> Binding.oneWay(fun (m, (i, t)) -> 
                             if i = m.SelectedId then accent else transparent)
+                        "DoubleClickCmd" |> Binding.cmd RemoveSelected
                     ]))
             
             "ViewBorder" |> Binding.subModelSeq(
                 (fun m -> m.Tabs |> Seq.indexed),
                 (fun (i, v) -> i),
                 (fun () -> [
+                    "DBGC" |> Binding.oneWay(fun _ -> System.Drawing.Color.Transparent)
                     "WvVisibility" |> Binding.oneWay(fun (m, (i, t)) -> 
                         if i = m.SelectedId then Visibility.Visible else Visibility.Hidden)
                 ]))

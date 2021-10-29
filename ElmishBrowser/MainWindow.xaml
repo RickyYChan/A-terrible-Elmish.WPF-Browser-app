@@ -6,6 +6,7 @@
         xmlns:fw="clr-namespace:SourceChord.FluentWPF;assembly=FluentWPF"
         xmlns:wv="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         xmlns:local="clr-namespace:ElmishBrowser"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800"
         fw:AcrylicWindow.Enabled="True"
@@ -20,54 +21,72 @@
         </Grid.RowDefinitions>
 
         <DockPanel Grid.Row="0"
-                   FlowDirection="RightToLeft" 
-                   HorizontalAlignment="Right" 
-                   LastChildFill="False" 
                    fw:PointerTracker.Enabled="True"
                    >
             <!-- horizontal aligment: 新控件相对旧控件的位置.  -->
-            <!--<Button Content="Add Tab" 
+            <Button Content="＋" 
                     Padding="10, 0, 10 ,0"
                     Style="{StaticResource ButtonRevealStyle}" 
-                    DockPanel.Dock="Left" 
+                    DockPanel.Dock="Right" 
+                    HorizontalAlignment="Right"
                     Background="Transparent" 
                     BorderThickness="0" 
                     BorderBrush="Transparent"
                     Command="{Binding AddTabCmd}"
-                    />-->
-        </DockPanel>
+                    />
+            <Button Content="-" 
+                    Padding="10, 0, 10 ,0"
+                    Style="{StaticResource ButtonRevealStyle}" 
+                    DockPanel.Dock="Right" 
+                    HorizontalAlignment="Right"
+                    Background="Transparent" 
+                    BorderThickness="0" 
+                    BorderBrush="Transparent"
+                    Command="{Binding RmTabCmd}"
+                    />
 
-        <ItemsControl Grid.Row="0" 
-                      ItemsSource="{Binding TabSource}"
-                      >
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <Button Style="{StaticResource ButtonAccentRevealStyle}"
-                            Content="{Binding TabContent}"
-                            Padding="10, 0, 10, 0"
-                            Background="{Binding TabBg}"
-                            BorderBrush="Transparent"
-                            BorderThickness="0"
-                            Height="30"
-                            Command="{Binding SelectItem}"
-                            />
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <WrapPanel Orientation="Horizontal"/>
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-            <ItemsControl.Template>
-                <ControlTemplate TargetType="ItemsControl">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                  HorizontalScrollBarVisibility="Disabled"
-                                  >
-                        <ItemsPresenter/>
-                    </ScrollViewer>
-                </ControlTemplate>
-            </ItemsControl.Template>
-        </ItemsControl>
+            <ItemsControl ItemsSource="{Binding TabSource}"
+                          HorizontalAlignment="Left"
+                          DockPanel.Dock="Left"
+                          Background="Transparent"
+                          BorderThickness="0"
+                          BorderBrush="Transparent"
+                          >
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Button Style="{StaticResource ButtonAccentRevealStyle}"
+                                Content="{Binding TabContent}"
+                                Padding="10, 0, 10, 0"
+                                Background="{Binding TabBg}"
+                                BorderBrush="Transparent"
+                                BorderThickness="0"
+                                Height="30"
+                                Command="{Binding SelectItem}"
+                                >
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseDoubleClick">
+                                    <i:InvokeCommandAction Command="{Binding DoubleClickCmd}"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </Button>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.Template>
+                    <ControlTemplate TargetType="ItemsControl">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      >
+                            <ItemsPresenter/>
+                        </ScrollViewer>
+                    </ControlTemplate>
+                </ItemsControl.Template>
+            </ItemsControl>
+        </DockPanel>
 
         <ItemsControl Grid.Row="1" 
                       ItemsSource="{Binding ViewBorder}"
@@ -76,6 +95,8 @@
                 <DataTemplate>
                     <wv:WebView2 Source="https://www.bing.com"
                                  Visibility="{Binding WvVisibility}"
+                                 CoreWebView2InitializationCompleted="WebView2_CoreWebView2InitializationCompleted"
+                                 DefaultBackgroundColor="{Binding DBGC}"
                                  />
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
@@ -84,15 +105,6 @@
                     <Grid/>
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
-            <ItemsControl.Template>
-                <ControlTemplate TargetType="ItemsControl">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                  HorizontalScrollBarVisibility="Disabled"
-                                  >
-                        <ItemsPresenter/>
-                    </ScrollViewer>
-                </ControlTemplate>
-            </ItemsControl.Template>
         </ItemsControl>
         
     </Grid>
