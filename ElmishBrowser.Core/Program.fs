@@ -29,7 +29,6 @@ module Tab =
     type TabItem = 
         {
             Content: obj 
-            WvVisibility: Visibility
         }
 
 module App = 
@@ -46,7 +45,7 @@ module App =
     
     let init =
         {
-            Tabs = { 0 .. 5 } |> Seq.map(fun x -> { Content = $"Hello {x}"; WvVisibility = Visibility.Hidden }) |> IList.init
+            Tabs = { 0 .. 5 } |> Seq.map(fun x -> { Content = $"Hello {x}" }) |> IList.init
             SelectedId = -1
         }, Cmd.none
     
@@ -73,7 +72,8 @@ module App =
                 (fun m -> m.Tabs |> Seq.indexed),
                 (fun (i, v) -> i),
                 (fun () -> [
-                    "WvVisibility" |> Binding.oneWay(fun (m, (i, t)) -> t.WvVisibility)
+                    "WvVisibility" |> Binding.oneWay(fun (m, (i, t)) -> 
+                        if i = m.SelectedId then Visibility.Visible else Visibility.Hidden)
                 ]))
         ]
 
