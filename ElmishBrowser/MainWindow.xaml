@@ -15,7 +15,7 @@
         >
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="30"/>
+            <RowDefinition Height="32"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
 
@@ -26,7 +26,7 @@
                    fw:PointerTracker.Enabled="True"
                    >
             <!-- horizontal aligment: 新控件相对旧控件的位置.  -->
-            <Button Content="Add Tab" 
+            <!--<Button Content="Add Tab" 
                     Padding="10, 0, 10 ,0"
                     Style="{StaticResource ButtonRevealStyle}" 
                     DockPanel.Dock="Left" 
@@ -34,7 +34,7 @@
                     BorderThickness="0" 
                     BorderBrush="Transparent"
                     Command="{Binding AddTabCmd}"
-                    />
+                    />-->
         </DockPanel>
 
         <ItemsControl Grid.Row="0" 
@@ -68,30 +68,33 @@
                 </ControlTemplate>
             </ItemsControl.Template>
         </ItemsControl>
-        
-        <!-- use grid -->
-        <ItemsControl Grid.Row="1">
+
+        <ItemsControl Grid.Row="1" 
+                      ItemsSource="{Binding ViewBorder}"
+                      >
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <wv:WebView2 Source="https://www.bing.com"
+                                 Visibility="{Binding WvVisibility}"
+                                 />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <Grid/>
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
-            <Button Content="foo" 
-                       HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
-                       HorizontalContentAlignment="Center"
-                    VerticalContentAlignment="Center"
-                       Background="Blue"
-                       />
-            <Button Content="bar" 
-                       HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
-                       HorizontalContentAlignment="Center"
-                    VerticalContentAlignment="Center"
-                       Background="Blue"
-                    Visibility="Hidden"
-                    
-                       />
+            <ItemsControl.Template>
+                <ControlTemplate TargetType="ItemsControl">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  >
+                        <ItemsPresenter/>
+                    </ScrollViewer>
+                </ControlTemplate>
+            </ItemsControl.Template>
         </ItemsControl>
-        <!-- use grid -->
+        
     </Grid>
 
 </Window>
