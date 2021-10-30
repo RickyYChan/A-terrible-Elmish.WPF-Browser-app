@@ -63,11 +63,11 @@
                                 Height="30"
                                 Command="{Binding SelectItem}"
                                 >
-                            <i:Interaction.Triggers>
+                            <!--<i:Interaction.Triggers>
                                 <i:EventTrigger EventName="MouseDoubleClick">
                                     <i:InvokeCommandAction Command="{Binding DoubleClickCmd}"/>
                                 </i:EventTrigger>
-                            </i:Interaction.Triggers>
+                            </i:Interaction.Triggers>-->
                         </Button>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
@@ -93,11 +93,15 @@
                       >
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <wv:WebView2 Source="https://www.bing.com"
+                    <!--<wv:WebView2 Source="https://www.bing.com"
                                  Visibility="{Binding WvVisibility}"
                                  CoreWebView2InitializationCompleted="WebView2_CoreWebView2InitializationCompleted"
                                  DefaultBackgroundColor="{Binding DBGC}"
-                                 />
+                                 />-->
+                    <local:BindableWebView 
+                                           Visibility="{Binding WvVisibility}"
+                                           IsDisposed="{Binding IsDisposed}"
+                                           />
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
             <ItemsControl.ItemsPanel>
