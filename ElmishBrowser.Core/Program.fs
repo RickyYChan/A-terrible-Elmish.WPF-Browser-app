@@ -7,12 +7,16 @@ open Elmish
 open System.Windows
 
 [<AutoOpen>]
-module IList = 
+module IVec = 
     open System.Collections.Immutable
+    type ivec<'a> = ImmutableList<'a>
+    type ImmutableList with 
+        static member add d (x:ivec<_>) = x.Add d 
+        static member rmAt ind (x:ivec<_>) = x.RemoveAt ind 
+        static member ofSeq x = ImmutableList.CreateRange x
+    type ivec = ImmutableList
+
     let len = Seq.length
-    let add d (x:ImmutableList<_>) = x.Add d 
-    let rmat ind (x:ImmutableList<_>) = x.RemoveAt ind 
-    let init = ImmutableList.CreateRange
 
 [<AutoOpen>]
 /// use static classes: System.Windows.Media.Brushes and System.Windows.Application.    
@@ -32,21 +36,20 @@ module Tab =
         }
 
 module App = 
-    open System.Collections.Immutable
     type Model =
         { 
-            Tabs: Tab.TabItem ImmutableList
+            Tabs: Tab.TabItem ivec
             SelectedId: int
         }
     
     type Msg =
         | AddTab
-        | RemoveSelected
+        | RmSelection
         | Select of int
     
     let init =
         {
-            Tabs = { 0 .. 5 } |> Seq.map(fun x -> { Content = $"Hello {x}" }) |> IList.init
+            Tabs = { 0 .. 5 } |> Seq.map(fun x -> { Content = $"Hello {x}" }) |> ivec.ofSeq
             SelectedId = -1
         }
         //, Cmd.none
@@ -54,16 +57,16 @@ module App =
     
     let update msg m = 
         match msg with 
-        | AddTab -> { m with Tabs = m.Tabs |> IList.add { Content = $"Hello {m.Tabs |> len}" } }, 
+        | AddTab -> { m with Tabs = m.Tabs |> ivec.add { Content = $"Hello {m.Tabs |> len}" } }, 
                     Cmd.ofMsg (Select m.Tabs.Count)
         | Select i -> { m with SelectedId = i }, Cmd.none
-        | RemoveSelected -> (if m.Tabs.Count = 0 then m else { m with Tabs = m.Tabs |> IList.rmat m.SelectedId }), 
-                            Cmd.ofMsg (Select (m.Tabs.Count - 2))
+        | RmSelection -> (if m.Tabs.Count = 0 then m else { m with Tabs = m.Tabs |> ivec.rmAt m.SelectedId }), 
+                            Cmd.ofMsg (Select (m.Tabs.Count - 2)) // new-m - 1 ( new-m = old m - 1)
     
     let bindings () : Binding<Model, Msg> list = 
         [
             "AddTabCmd" |> Binding.cmd AddTab
-            "RmTabCmd" |> Binding.cmd RemoveSelected
+            "RmTabCmd" |> Binding.cmd RmSelection
             "TabSource" |> Binding.subModelSeq(
                 (fun m -> m.Tabs |> Seq.indexed), 
                 (fun (i, t) -> i), 
@@ -72,7 +75,7 @@ module App =
                         "SelectItem" |> Binding.cmd(fun (m, (i, t)) -> Select i)
                         "TabBg" |> Binding.oneWay(fun (m, (i, t)) -> 
                             if i = m.SelectedId then accent else transparent)
-                        "DoubleClickCmd" |> Binding.cmd RemoveSelected
+                        "DoubleClickCmd" |> Binding.cmd RmSelection
                     ]))
             
             "ViewBorder" |> Binding.subModelSeq(
