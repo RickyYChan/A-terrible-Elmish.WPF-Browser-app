@@ -4,7 +4,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:fw="clr-namespace:SourceChord.FluentWPF;assembly=FluentWPF"
-        xmlns:wv="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         xmlns:local="clr-namespace:ElmishBrowser"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d"
@@ -93,24 +92,19 @@
                       >
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <!--<wv:WebView2 Source="https://www.bing.com"
-                                 Visibility="{Binding WvVisibility}"
-                                 CoreWebView2InitializationCompleted="WebView2_CoreWebView2InitializationCompleted"
-                                 DefaultBackgroundColor="{Binding DBGC}"
-                                 />-->
-                    <local:BindableWebView 
-                                           Visibility="{Binding WvVisibility}"
+                    <local:BindableWebView Visibility="{Binding WvVisibility}"
                                            IsDisposed="{Binding IsDisposed}"
                                            />
+                    <!-- use wrappanel and set the height / width property to have a look at multi-pages view -->
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <Grid/>
+                    <!--<WrapPanel Orientation="Horizontal"/>-->
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
         </ItemsControl>
-        
     </Grid>
 
 </Window>

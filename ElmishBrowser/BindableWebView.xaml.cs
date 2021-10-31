@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Drawing;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -8,14 +9,13 @@ namespace ElmishBrowser
     {
         public BindableWebView()
         {
-            InitializeComponent(); // init 
+            InitializeComponent();
 
             DependencyPropertyDescriptor.FromProperty(IsDisposedProperty, typeof(BindableWebView))
                 .AddValueChanged(this, (sender, e) =>
                 {
                     if (IsDisposed == true)
                     {
-                        System.Console.WriteLine("\n[[[ Dispoing! ]]]\n");
                         selfWv.Dispose();
                     }
                 }); // regist property changed event of a denpendency property. 
@@ -23,6 +23,7 @@ namespace ElmishBrowser
             selfWv.CoreWebView2InitializationCompleted += (sender, e) =>
                 selfWv.CoreWebView2.NewWindowRequested += (sender, e) =>
                     e.NewWindow = selfWv.CoreWebView2;
+            // regist an init event to handle this event. 
         }
         public string Address
         {
@@ -38,5 +39,12 @@ namespace ElmishBrowser
         }
         public static readonly DependencyProperty IsDisposedProperty =
             DependencyProperty.Register("IsDisposed", typeof(bool), typeof(BindableWebView), new PropertyMetadata(false));
+        public Color DefaultBackground
+        {
+            get { return (Color)GetValue(DefaultBackgroundProperty); }
+            set { SetValue(DefaultBackgroundProperty, value); }
+        }
+        public static readonly DependencyProperty DefaultBackgroundProperty =
+            DependencyProperty.Register("DefaultBackground", typeof(Color), typeof(BindableWebView), new PropertyMetadata(Color.Transparent));
     }
 }

@@ -12,7 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="Elmish.WPF" Version="4.0.0-beta-42" />
-    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1018-prerelease" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1056-prerelease" />
     <PackageReference Include="Serilog" Version="2.10.0" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="3.0.1" />
     <PackageReference Include="Serilog.Sinks.Console" Version="4.0.0" />

@@ -10,6 +10,7 @@
              x:Name="selfControl"
              >
     <wv:WebView2 Source="{Binding ElementName=selfControl, Path=Address}"
+                 DefaultBackgroundColor="{Binding ElementName=selfControl, Path=DefaultBackground}"
                  x:Name="selfWv"
                  />
 </UserControl>

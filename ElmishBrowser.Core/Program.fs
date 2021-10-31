@@ -7,62 +7,68 @@ open Elmish
 open System.Windows
 
 [<AutoOpen>]
-module IVec = 
-    open System.Collections.Immutable
-    type ivec<'a> = ImmutableList<'a>
-    type ImmutableList with 
-        static member add d (x:ivec<_>) = x.Add d 
-        static member rmAt ind (x:ivec<_>) = x.RemoveAt ind 
-        static member ofSeq x = ImmutableList.CreateRange x
-    type ivec = ImmutableList
-
+module Seq = 
     let len = Seq.length
+    module Seq =
+        let rmAt ind s = s |> Seq.indexed |> Seq.filter(fun (i, e) -> i <> ind) |> Seq.map snd // filteri
+        let addLast s m = seq { yield! m; yield s }
+        let mapAt ind f = Seq.mapi(fun i a -> if i = ind then f a else a)
 
 [<AutoOpen>]
 /// use static classes: System.Windows.Media.Brushes and System.Windows.Application.    
 /// can use mkProgramWithCmdMsg as an alternative.   
 /// seems dirty.  
-module FWColor = 
+module FwColor = 
     type Color = System.Windows.Media.Brushes
     let accent = System.Windows.Application.Current.Resources.["ImmersiveSystemAccentBrush"]
-    let transparent = Color.Transparent :> obj 
-
+    let transparent = Color.Transparent |> box
 
 [<AutoOpen>]
 module Tab =
     type TabItem = 
         {
             Content: obj 
+            IsDisposed: bool 
         }
+    type TabMsg = Dispose 
+    let tabUpdate msg m = 
+        match msg with Dispose -> { m with IsDisposed = true }
 
 module App = 
+
     type Model =
         { 
-            Tabs: Tab.TabItem ivec
-            SelectedId: int
+            Tabs: Tab.TabItem seq
+            SelectionId: int
         }
     
     type Msg =
+        | None
         | AddTab
-        | RmSelection
         | Select of int
+        | RmSelection
+        | RmAfterDisposing
     
     let init =
         {
-            Tabs = { 0 .. 5 } |> Seq.map(fun x -> { Content = $"Hello {x}" }) |> ivec.ofSeq
-            SelectedId = -1
+            Tabs = { 0 .. 5 } |> Seq.map(fun x -> { Content = $"Hello {x}"; IsDisposed = false })
+            SelectionId = -1
         }
         //, Cmd.none
         , Cmd.ofMsg (Select 0)
     
     let update msg m = 
         match msg with 
-        | AddTab -> { m with Tabs = m.Tabs |> ivec.add { Content = $"Hello {m.Tabs |> len}" } }, 
-                    Cmd.ofMsg (Select m.Tabs.Count)
-        | Select i -> { m with SelectedId = i }, Cmd.none
-        | RmSelection -> (if m.Tabs.Count = 0 then m else { m with Tabs = m.Tabs |> ivec.rmAt m.SelectedId }), 
-                            Cmd.ofMsg (Select (m.Tabs.Count - 2)) // new-m - 1 ( new-m = old m - 1)
-    
+        | AddTab -> { m with Tabs = m.Tabs |> Seq.addLast { Content = $"Hello {m.Tabs |> len}" 
+                                                            IsDisposed = false; }
+                             SelectionId = m.Tabs |> len }, 
+                    Cmd.none
+        | Select i -> { m with SelectionId = i }, Cmd.none
+        | RmSelection -> { m with Tabs = m.Tabs |> Seq.mapAt m.SelectionId (tabUpdate Dispose) }, 
+                            Cmd.ofMsg RmAfterDisposing
+        | RmAfterDisposing -> { m with Tabs = m.Tabs |> Seq.rmAt m.SelectionId }, 
+                                Cmd.ofMsg (Select (len m.Tabs - 2) )
+        | None -> m, Cmd.none
     let bindings () : Binding<Model, Msg> list = 
         [
             "AddTabCmd" |> Binding.cmd AddTab
@@ -74,17 +80,16 @@ module App =
                         "TabContent" |> Binding.oneWay(fun (m, (i, t)) -> t.Content) 
                         "SelectItem" |> Binding.cmd(fun (m, (i, t)) -> Select i)
                         "TabBg" |> Binding.oneWay(fun (m, (i, t)) -> 
-                            if i = m.SelectedId then accent else transparent)
-                        "DoubleClickCmd" |> Binding.cmd RmSelection
+                            if i = m.SelectionId then accent else transparent)
+                        //"DoubleClickCmd" |> Binding.cmd Dispose
                     ]))
-            
             "ViewBorder" |> Binding.subModelSeq(
                 (fun m -> m.Tabs |> Seq.indexed),
-                (fun (i, v) -> i),
+                (fun (i, _) -> i),
                 (fun () -> [
-                    "DBGC" |> Binding.oneWay(fun _ -> System.Drawing.Color.Transparent)
+                    "IsDisposed" |> Binding.oneWay(fun (m, (i, t)) -> t.IsDisposed)
                     "WvVisibility" |> Binding.oneWay(fun (m, (i, t)) -> 
-                        if i = m.SelectedId then Visibility.Visible else Visibility.Hidden)
+                        if i = m.SelectionId then Visibility.Visible else Visibility.Hidden)
                 ]))
         ]
 
