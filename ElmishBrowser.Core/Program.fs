@@ -27,8 +27,15 @@ module FwColor =
 module Tab =
     type TabItem = 
         {
+            Guid: int
             Content: obj 
             IsDisposed: bool 
+        }
+    let it = 
+        {
+            Guid = -1 
+            Content = "Hello Elmish"
+            IsDisposed = false
         }
     type TabMsg = Dispose 
     let tabUpdate msg m = 
@@ -48,10 +55,11 @@ module App =
         | Select of int
         | RmSelection
         | RmAfterDisposing
+        | MapId
     
     let init =
         {
-            Tabs = { 0 .. 5 } |> Seq.map(fun x -> { Content = $"Hello {x}"; IsDisposed = false })
+            Tabs = { 0 .. 5 } |> Seq.map(fun x -> { it with Content = $"Hello {x}"; Guid = x })
             SelectionId = -1
         }
         //, Cmd.none
@@ -59,37 +67,50 @@ module App =
     
     let update msg m = 
         match msg with 
-        | AddTab -> { m with Tabs = m.Tabs |> Seq.addLast { Content = $"Hello {m.Tabs |> len}" 
-                                                            IsDisposed = false; }
+        | AddTab -> { m with Tabs = m.Tabs |> Seq.addLast { it with Content = $"Hello {m.Tabs |> len}" 
+                                                                    Guid = m.Tabs |> len }
                              SelectionId = m.Tabs |> len }, 
                     Cmd.none
         | Select i -> { m with SelectionId = i }, Cmd.none
         | RmSelection -> { m with Tabs = m.Tabs |> Seq.mapAt m.SelectionId (tabUpdate Dispose) }, 
                             Cmd.ofMsg RmAfterDisposing
         | RmAfterDisposing -> { m with Tabs = m.Tabs |> Seq.rmAt m.SelectionId }, 
-                                Cmd.ofMsg (Select (len m.Tabs - 2) )
+                                Cmd.batch [
+                                    Cmd.ofMsg MapId 
+                                    Cmd.ofMsg (Select (len m.Tabs - 2) )
+                                ]
+        | MapId -> { m with Tabs = m.Tabs |> Seq.mapi(fun i t -> { t with Guid = i }) }, Cmd.none
         | None -> m, Cmd.none
     let bindings () : Binding<Model, Msg> list = 
         [
             "AddTabCmd" |> Binding.cmd AddTab
             "RmTabCmd" |> Binding.cmd RmSelection
             "TabSource" |> Binding.subModelSeq(
-                (fun m -> m.Tabs |> Seq.indexed), 
-                (fun (i, t) -> i), 
+                (fun m -> m.Tabs), 
+                (fun t -> t.Guid), 
                 (fun () ->  [
-                        "TabContent" |> Binding.oneWay(fun (m, (i, t)) -> t.Content) 
-                        "SelectItem" |> Binding.cmd(fun (m, (i, t)) -> Select i)
-                        "TabBg" |> Binding.oneWay(fun (m, (i, t)) -> 
-                            if i = m.SelectionId then accent else transparent)
+                        "TabContent" |> Binding.oneWay(fun (m, t) -> t.Content) 
+                        "SelectItem" |> Binding.cmd(fun (m, t) -> Select t.Guid)
+                        "TabBg" |> Binding.oneWay(fun (m, t) -> 
+                            if t.Guid = m.SelectionId then accent else transparent)
                         //"DoubleClickCmd" |> Binding.cmd Dispose
                     ]))
+            //"TabSource" |> Binding.subModelSeq(
+            //    (fun () ->  [
+            //            "TabContent" |> Binding.oneWay(fun t -> t.Content) 
+            //            "SelectItem" |> Binding.cmd(fun t -> Select t.Guid)
+            //            "TabBg" |> Binding.oneWay(fun t -> 
+            //                if t.Guid = m.SelectionId then accent else transparent) // how to use the "m" here?
+            //        ]))
+            //    |> Binding.mapModel(fun m -> m.Tabs)
+            //    |> Binding.mapMsg(fun (i, msg) -> msg)
             "ViewBorder" |> Binding.subModelSeq(
-                (fun m -> m.Tabs |> Seq.indexed),
-                (fun (i, _) -> i),
+                (fun m -> m.Tabs),
+                (fun t -> t.Guid),
                 (fun () -> [
-                    "IsDisposed" |> Binding.oneWay(fun (m, (i, t)) -> t.IsDisposed)
-                    "WvVisibility" |> Binding.oneWay(fun (m, (i, t)) -> 
-                        if i = m.SelectionId then Visibility.Visible else Visibility.Hidden)
+                    "IsDisposed" |> Binding.oneWay(fun (m, t) -> t.IsDisposed)
+                    "WvVisibility" |> Binding.oneWay(fun (m, t) -> 
+                        if t.Guid = m.SelectionId then Visibility.Visible else Visibility.Hidden)
                 ]))
         ]
 
