@@ -62,11 +62,11 @@
                                 Height="30"
                                 Command="{Binding SelectItem}"
                                 >
-                            <!--<i:Interaction.Triggers>
+                            <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="MouseDoubleClick">
                                     <i:InvokeCommandAction Command="{Binding DoubleClickCmd}"/>
                                 </i:EventTrigger>
-                            </i:Interaction.Triggers>-->
+                            </i:Interaction.Triggers>
                         </Button>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
@@ -95,13 +95,11 @@
                     <local:BindableWebView Visibility="{Binding WvVisibility}"
                                            IsDisposed="{Binding IsDisposed}"
                                            />
-                    <!-- use wrappanel and set the height / width property to have a look at multi-pages view -->
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <Grid/>
-                    <!--<WrapPanel Orientation="Horizontal"/>-->
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
         </ItemsControl>

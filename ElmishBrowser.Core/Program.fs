@@ -5,14 +5,32 @@ open Serilog.Extensions.Logging
 open Elmish.WPF
 open Elmish
 open System.Windows
+open System
 
 [<AutoOpen>]
-module Seq = 
+module IdList = 
     let len = Seq.length
-    module Seq =
-        let rmAt ind s = s |> Seq.indexed |> Seq.filter(fun (i, e) -> i <> ind) |> Seq.map snd // filteri
-        let addLast s m = seq { yield! m; yield s }
-        let mapAt ind f = Seq.mapi(fun i a -> if i = ind then f a else a)
+    [<RequireQualifiedAccess>]
+    module idlist = 
+        let genId _ = 
+            Guid.NewGuid() 
+        let inline guid (x:^T) = 
+            (^T : (member Guid : Guid) x)
+        let inline rmAtId id = 
+            List.filter (fun t -> guid t <> id)
+        let inline mapAtId id f = 
+            List.map (fun t -> if id = guid t then f t else t )
+        let inline getIndexOfId id x = 
+            if id = Guid.Empty 
+            then -1 
+            else List.findIndex(fun t -> id = guid t) x
+        let inline getPreviousId id x = 
+            let ind = x |> getIndexOfId id
+            if ind = 0
+            then if x.Length > 1 then x.[1] |> guid else Guid.Empty // ind = 0 need to be removed
+            else if ind < 0 then Guid.Empty
+            else x.[ind - 1] |> guid
+
 
 [<AutoOpen>]
 /// use static classes: System.Windows.Media.Brushes and System.Windows.Application.    
@@ -27,13 +45,13 @@ module FwColor =
 module Tab =
     type TabItem = 
         {
-            Guid: int
+            Guid: Guid
             Content: obj 
             IsDisposed: bool 
         }
     let it = 
         {
-            Guid = -1 
+            Guid = Guid.Empty
             Content = "Hello Elmish"
             IsDisposed = false
         }
@@ -45,41 +63,34 @@ module App =
 
     type Model =
         { 
-            Tabs: Tab.TabItem seq
-            SelectionId: int
+            Tabs: Tab.TabItem list
+            SelectionId: Guid
         }
     
     type Msg =
         | None
         | AddTab
-        | Select of int
+        | SelectOfGuid of Guid
         | RmSelection
         | RmAfterDisposing
-        | MapId
     
     let init =
         {
-            Tabs = { 0 .. 5 } |> Seq.map(fun x -> { it with Content = $"Hello {x}"; Guid = x })
-            SelectionId = -1
-        }
-        //, Cmd.none
-        , Cmd.ofMsg (Select 0)
+            Tabs = []
+            SelectionId = Guid.Empty
+        }, Cmd.none
     
     let update msg m = 
         match msg with 
-        | AddTab -> { m with Tabs = m.Tabs |> Seq.addLast { it with Content = $"Hello {m.Tabs |> len}" 
-                                                                    Guid = m.Tabs |> len }
-                             SelectionId = m.Tabs |> len }, 
-                    Cmd.none
-        | Select i -> { m with SelectionId = i }, Cmd.none
-        | RmSelection -> { m with Tabs = m.Tabs |> Seq.mapAt m.SelectionId (tabUpdate Dispose) }, 
+        | AddTab -> let id = idlist.genId()
+                    { m with Tabs = m.Tabs @ [{ it with Content = $"Hello {m.Tabs |> len}" 
+                                                        Guid = id }] }, 
+                    Cmd.ofMsg (SelectOfGuid id)
+        | SelectOfGuid i -> { m with SelectionId = i }, Cmd.none
+        | RmSelection -> { m with Tabs = m.Tabs |> idlist.mapAtId m.SelectionId (tabUpdate Dispose) }, 
                             Cmd.ofMsg RmAfterDisposing
-        | RmAfterDisposing -> { m with Tabs = m.Tabs |> Seq.rmAt m.SelectionId }, 
-                                Cmd.batch [
-                                    Cmd.ofMsg MapId 
-                                    Cmd.ofMsg (Select (len m.Tabs - 2) )
-                                ]
-        | MapId -> { m with Tabs = m.Tabs |> Seq.mapi(fun i t -> { t with Guid = i }) }, Cmd.none
+        | RmAfterDisposing -> { m with Tabs = m.Tabs |> idlist.rmAtId m.SelectionId }, 
+                                Cmd.ofMsg (SelectOfGuid (m.Tabs |> idlist.getPreviousId m.SelectionId))
         | None -> m, Cmd.none
     let bindings () : Binding<Model, Msg> list = 
         [
@@ -90,20 +101,11 @@ module App =
                 (fun t -> t.Guid), 
                 (fun () ->  [
                         "TabContent" |> Binding.oneWay(fun (m, t) -> t.Content) 
-                        "SelectItem" |> Binding.cmd(fun (m, t) -> Select t.Guid)
+                        "SelectItem" |> Binding.cmd(fun (m, t) -> SelectOfGuid t.Guid)
                         "TabBg" |> Binding.oneWay(fun (m, t) -> 
                             if t.Guid = m.SelectionId then accent else transparent)
-                        //"DoubleClickCmd" |> Binding.cmd Dispose
+                        "DoubleClickCmd" |> Binding.cmd RmSelection
                     ]))
-            //"TabSource" |> Binding.subModelSeq(
-            //    (fun () ->  [
-            //            "TabContent" |> Binding.oneWay(fun t -> t.Content) 
-            //            "SelectItem" |> Binding.cmd(fun t -> Select t.Guid)
-            //            "TabBg" |> Binding.oneWay(fun t -> 
-            //                if t.Guid = m.SelectionId then accent else transparent) // how to use the "m" here?
-            //        ]))
-            //    |> Binding.mapModel(fun m -> m.Tabs)
-            //    |> Binding.mapMsg(fun (i, msg) -> msg)
             "ViewBorder" |> Binding.subModelSeq(
                 (fun m -> m.Tabs),
                 (fun t -> t.Guid),
