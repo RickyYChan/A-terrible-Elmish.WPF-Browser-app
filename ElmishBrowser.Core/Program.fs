@@ -42,7 +42,7 @@ module FwColor =
     let accent = System.Windows.Application.Current.Resources.["ImmersiveSystemAccentBrush"]
     let transparent = Color.Transparent |> box
 
-[<AutoOpen; RequireQualifiedAccess>]
+[<AutoOpen>]
 module Tab =
     let homePage = "https://www.bing.com"
     type TabItem = 
