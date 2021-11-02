@@ -41,60 +41,88 @@ module FwColor =
     let accent = System.Windows.Application.Current.Resources.["ImmersiveSystemAccentBrush"]
     let transparent = Color.Transparent |> box
 
-[<AutoOpen>]
+[<AutoOpen>][<RequireQualifiedAccess>]
 module Tab =
+    let homePage = "https://www.bing.com"
     type TabItem = 
         {
             Guid: Guid
             Content: obj 
             IsDisposed: bool 
+            Address: string
         }
     let it = 
         {
             Guid = Guid.Empty
             Content = "Hello Elmish"
             IsDisposed = false
+            Address = homePage
         }
-    type TabMsg = Dispose 
+    type TabMsg = 
+        | Dispose 
+        | ChangeAddress of string
     let tabUpdate msg m = 
-        match msg with Dispose -> { m with IsDisposed = true }
+        match msg with 
+        | Dispose -> { m with IsDisposed = true }
+        | ChangeAddress uri -> { m with Address = uri }
 
 module App = 
-
     type Model =
         { 
             Tabs: Tab.TabItem list
             SelectionId: Guid
+            MainWindowState: WindowState
+            MainWindow: Window
         }
     
     type Msg =
         | None
-        | AddTab
+        | AddTab of string
         | SelectOfGuid of Guid
         | RmSelection
         | RmAfterDisposing
+        | ChangeWindowState of WindowState
+        | SetAddress of Guid * string
     
-    let init =
+    let init window =
         {
             Tabs = []
             SelectionId = Guid.Empty
+            MainWindowState = WindowState.Normal
+            MainWindow = window
         }, Cmd.none
     
     let update msg m = 
         match msg with 
-        | AddTab -> let id = idlist.genId()
-                    { m with Tabs = m.Tabs @ [{ it with Content = $"Hello {m.Tabs |> len}" 
-                                                        Guid = id }] }, 
-                    Cmd.ofMsg (SelectOfGuid id)
+        | AddTab uri -> let id = idlist.genId()
+                        { m with Tabs = m.Tabs @ [{ it with Content = $"Hello {m.Tabs |> len}" 
+                                                            Guid = id
+                                                            Address = uri }] }, 
+                        Cmd.ofMsg (SelectOfGuid id)
         | SelectOfGuid i -> { m with SelectionId = i }, Cmd.none
         | RmSelection -> { m with Tabs = m.Tabs |> idlist.mapAtId m.SelectionId (tabUpdate Dispose) }, 
                             Cmd.ofMsg RmAfterDisposing
         | RmAfterDisposing -> { m with Tabs = m.Tabs |> idlist.rmAtId m.SelectionId }, 
                                 Cmd.ofMsg (SelectOfGuid (m.Tabs |> idlist.getPreviousId m.SelectionId))
+        | ChangeWindowState ws -> { m with MainWindowState = ws }, Cmd.none
+        | SetAddress (guid, uri) -> { m with Tabs = m.Tabs |> idlist.mapAtId guid (tabUpdate (ChangeAddress uri)) }, 
+                                    Cmd.none
         | None -> m, Cmd.none
     let bindings () : Binding<Model, Msg> list = 
         [
-            "AddTabCmd" |> Binding.cmd AddTab
+            "ExitApp" |> Binding.cmd (fun _ -> Environment.Exit 0; None)
+            "MainWindowState" |> Binding.twoWay ((fun m -> m.MainWindowState), ChangeWindowState)
+            "MouseLeftBtnDownCmd" |> Binding.cmdParam(fun e m -> 
+                let args = e :?> System.Windows.Input.MouseButtonEventArgs
+                match args.ClickCount with 
+                | 1 -> m.MainWindow.DragMove(); None
+                | 2 -> 
+                        match m.MainWindowState with 
+                        | WindowState.Normal -> ChangeWindowState WindowState.Maximized
+                        | _ -> ChangeWindowState WindowState.Normal
+                | _ -> None
+            )
+            "AddTabCmd" |> Binding.cmd (AddTab homePage)
             "RmTabCmd" |> Binding.cmd RmSelection
             "TabSource" |> Binding.subModelSeq(
                 (fun m -> m.Tabs), 
@@ -113,12 +141,15 @@ module App =
                     "IsDisposed" |> Binding.oneWay(fun (m, t) -> t.IsDisposed)
                     "WvVisibility" |> Binding.oneWay(fun (m, t) -> 
                         if t.Guid = m.SelectionId then Visibility.Visible else Visibility.Hidden)
+                    "Address" |> Binding.twoWay (
+                        (fun (m, t) -> t.Address), 
+                        (fun uri (m, t) -> SetAddress(t.Guid, uri)))
                 ]))
         ]
 
 
 let getDesignVm (m:'model, b:Binding<'model, 'msg> list) = ViewModel.designInstance m b
-let main window =
+let main (window:Window) =
     let logger =
         LoggerConfiguration()
             .MinimumLevel.Override("Elmish.WPF.Update", Events.LogEventLevel.Verbose)
@@ -126,7 +157,6 @@ let main window =
             .MinimumLevel.Override("Elmish.WPF.Performance", Events.LogEventLevel.Verbose)
             .WriteTo.Console()
             .CreateLogger()
-    
-    WpfProgram.mkProgram (fun () -> App.init) App.update App.bindings
+    WpfProgram.mkProgram (fun () -> App.init window) App.update App.bindings
     |> WpfProgram.withLogger (new SerilogLoggerFactory(logger))
     |> WpfProgram.startElmishLoop window

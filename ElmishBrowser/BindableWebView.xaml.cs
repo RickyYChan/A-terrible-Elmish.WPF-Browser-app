@@ -19,11 +19,6 @@ namespace ElmishBrowser
                         selfWv.Dispose();
                     }
                 }); // regist property changed event of a denpendency property. 
-
-            selfWv.CoreWebView2InitializationCompleted += (sender, e) =>
-                selfWv.CoreWebView2.NewWindowRequested += (sender, e) =>
-                    e.NewWindow = selfWv.CoreWebView2;
-            // regist an init event to handle this event. 
         }
         public string Address
         {
@@ -46,5 +41,7 @@ namespace ElmishBrowser
         }
         public static readonly DependencyProperty DefaultBackgroundProperty =
             DependencyProperty.Register("DefaultBackground", typeof(Color), typeof(BindableWebView), new PropertyMetadata(Color.Transparent));
+        private void selfWv_SourceChanged(object sender, Microsoft.Web.WebView2.Core.CoreWebView2SourceChangedEventArgs e) =>
+            Address = selfWv.Source.OriginalString;
     }
 }

@@ -10,8 +10,9 @@
         Title="MainWindow" Height="450" Width="800"
         fw:AcrylicWindow.Enabled="True"
         fw:AcrylicWindow.FallbackColor="{DynamicResource SystemBaseHighColorBrush}"
-        fw:AcrylicWindow.AcrylicWindowStyle="NoIcon"
+        fw:AcrylicWindow.AcrylicWindowStyle="None"
         d:DataContext="{x:Static local:DesignViewModels.MainWindowDesignVm}"
+        WindowState="{Binding MainWindowState, Mode=TwoWay}"
         >
     <Grid>
         <Grid.RowDefinitions>
@@ -21,9 +22,24 @@
 
         <DockPanel Grid.Row="0"
                    fw:PointerTracker.Enabled="True"
+                   Background="Transparent"
                    >
-            <!-- horizontal aligment: 新控件相对旧控件的位置.  -->
-            <Button Content="＋" 
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="MouseLeftButtonDown">
+                    <i:InvokeCommandAction PassEventArgsToCommand="True" Command="{Binding MouseLeftBtnDownCmd}"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+            <Button Content="🚫" 
+                    Padding="10, 0, 10 ,0"
+                    Style="{StaticResource ButtonAccentRevealStyle}" 
+                    DockPanel.Dock="Right" 
+                    HorizontalAlignment="Right"
+                    Background="Transparent" 
+                    BorderThickness="0" 
+                    BorderBrush="Transparent"
+                    Command="{Binding ExitApp}"
+                    />
+            <Button Content="➕" 
                     Padding="10, 0, 10 ,0"
                     Style="{StaticResource ButtonRevealStyle}" 
                     DockPanel.Dock="Right" 
@@ -33,7 +49,7 @@
                     BorderBrush="Transparent"
                     Command="{Binding AddTabCmd}"
                     />
-            <Button Content="-" 
+            <Button Content="❌" 
                     Padding="10, 0, 10 ,0"
                     Style="{StaticResource ButtonRevealStyle}" 
                     DockPanel.Dock="Right" 
@@ -94,6 +110,7 @@
                 <DataTemplate>
                     <local:BindableWebView Visibility="{Binding WvVisibility}"
                                            IsDisposed="{Binding IsDisposed}"
+                                           Address="{Binding Address, Mode=TwoWay}"
                                            />
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
