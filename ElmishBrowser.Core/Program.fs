@@ -73,7 +73,7 @@ module App =
             Tabs: Tab.TabItem list
             SelectionId: Guid
             MainWindowState: WindowState
-            MainWindow: Window
+            //MainWindow: Window
         }
     
     type Msg =
@@ -85,12 +85,12 @@ module App =
         | ChangeWindowState of WindowState
         | SetAddress of Guid * string
     
-    let init window =
+    let init (*window*) =
         {
             Tabs = []
             SelectionId = Guid.Empty
             MainWindowState = WindowState.Normal
-            MainWindow = window
+            //MainWindow = window
         }, Cmd.none
     
     let update msg m = 
@@ -116,7 +116,7 @@ module App =
             "MouseLeftBtnDownCmd" |> Binding.cmdParam(fun e m -> 
                 let args = e :?> System.Windows.Input.MouseButtonEventArgs
                 match args.ClickCount with 
-                | 1 -> m.MainWindow.DragMove(); None
+                | 1 -> (*m.MainWindow.DragMove()*)Application.Current.MainWindow.DragMove(); None
                 | 2 -> 
                         match m.MainWindowState with 
                         | WindowState.Normal -> ChangeWindowState WindowState.Maximized
@@ -147,7 +147,7 @@ module App =
                         (fun uri (m, t) -> SetAddress(t.Guid, uri)))
                     "NewWindowRequest" |> Binding.cmdParam(fun e m -> 
                         let args = e :?> RoutedEventArgs 
-                        let wv = args.OriginalSource :?> FrameworkElement
+                        let wv = args.OriginalSource :?> FrameworkElement // actually it is webview2
                         AddTab (wv.Tag :?> string))
                 ]))
         ]
@@ -162,6 +162,6 @@ let main (window:Window) =
             .MinimumLevel.Override("Elmish.WPF.Performance", Events.LogEventLevel.Verbose)
             .WriteTo.Console()
             .CreateLogger()
-    WpfProgram.mkProgram (fun () -> App.init window) App.update App.bindings
+    WpfProgram.mkProgram (fun () -> App.init (*window*)) App.update App.bindings
     |> WpfProgram.withLogger (new SerilogLoggerFactory(logger))
     |> WpfProgram.startElmishLoop window
