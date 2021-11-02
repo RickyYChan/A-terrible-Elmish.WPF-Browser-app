@@ -13,10 +13,12 @@
         fw:AcrylicWindow.AcrylicWindowStyle="None"
         d:DataContext="{x:Static local:DesignViewModels.MainWindowDesignVm}"
         WindowState="{Binding MainWindowState, Mode=TwoWay}"
+        MinHeight="200"
+        MinWidth="300"
         >
     <Window.Resources>
         <Style TargetType="ToolTip">
-            <Setter Property="Background" Value="{DynamicResource SystemBaseLowColorBrush}"/>
+            <Setter Property="Background" Value="{x:Static fw:AccentColors.ImmersiveSystemAccentDark1Brush}"/>
             <Setter Property="Foreground" Value="{DynamicResource SystemBaseMediumHighColorBrush}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="FontFamily" Value="Consolas"/>
@@ -37,10 +39,38 @@
                     <i:InvokeCommandAction PassEventArgsToCommand="True" Command="{Binding MouseLeftBtnDownCmd}"/>
                 </i:EventTrigger>
             </i:Interaction.Triggers>
+            
             <StackPanel Orientation="Horizontal"
                         DockPanel.Dock="Right"
                         Background="Transparent"
                         >
+                <Button Content="◀️" 
+                        Padding="10, 0, 10 ,0"
+                        Style="{StaticResource ButtonRevealStyle}" 
+                        Background="Transparent" 
+                        BorderThickness="0" 
+                        BorderBrush="Transparent"
+                        Command="{Binding GoBackCmd}"
+                        ToolTip="Go Back"
+                        />
+                <Button Content="🔁" 
+                        Padding="10, 0, 10 ,0"
+                        Style="{StaticResource ButtonRevealStyle}" 
+                        Background="Transparent" 
+                        BorderThickness="0" 
+                        BorderBrush="Transparent"
+                        Command="{Binding ReloadCmd}"
+                        ToolTip="Reload"
+                        />
+                <Button Content="▶️" 
+                        Padding="10, 0, 10 ,0"
+                        Style="{StaticResource ButtonRevealStyle}" 
+                        Background="Transparent" 
+                        BorderThickness="0" 
+                        BorderBrush="Transparent"
+                        Command="{Binding GoForwardCmd}"
+                        ToolTip="Go Forward"
+                        />
                 <Button Content="❌" 
                         Padding="10, 0, 10 ,0"
                         Style="{StaticResource ButtonRevealStyle}" 
@@ -48,6 +78,7 @@
                         BorderThickness="0" 
                         BorderBrush="Transparent"
                         Command="{Binding RmTabCmd}"
+                        ToolTip="Remove Page"
                         />
                 <Button Content="➕" 
                         Padding="10, 0, 10 ,0"
@@ -56,6 +87,25 @@
                         BorderThickness="0" 
                         BorderBrush="Transparent"
                         Command="{Binding AddTabCmd}"
+                        ToolTip="Add Page"
+                        />
+                <Button Content="➖" 
+                        Padding="10, 0, 10 ,0"
+                        Style="{StaticResource ButtonRevealStyle}" 
+                        Background="Transparent" 
+                        BorderThickness="0" 
+                        BorderBrush="Transparent"
+                        Command="{Binding MinimizationCmd}"
+                        ToolTip="Minimize"
+                        />
+                <Button Content="⬜" 
+                        Padding="10, 0, 10 ,0"
+                        Style="{StaticResource ButtonRevealStyle}" 
+                        Background="Transparent" 
+                        BorderThickness="0" 
+                        BorderBrush="Transparent"
+                        Command="{Binding ChangeStateCmd}"
+                        ToolTip="Change State"
                         />
                 <Button Content="🚫" 
                         Padding="10, 0, 10 ,0"
@@ -123,12 +173,17 @@
 
         <ItemsControl Grid.Row="1" 
                       ItemsSource="{Binding ViewBorder}"
+                      BorderBrush="{x:Static fw:AccentColors.ImmersiveSystemAccentBrush}"
+                      BorderThickness="{Binding ViewBorderThickness}"
                       >
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <local:BindableWebView Visibility="{Binding WvVisibility}"
                                            IsDisposed="{Binding IsDisposed}"
                                            Address="{Binding Address, Mode=TwoWay}"
+                                           GoForwardCache="{Binding GoForwardCache}"
+                                           GoBackCache="{Binding GoBackCache}"
+                                           ReloadCache="{Binding ReloadCache}"
                                            >
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="NewWindowRequest">

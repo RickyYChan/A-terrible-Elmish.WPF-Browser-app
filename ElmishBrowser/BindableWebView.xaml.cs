@@ -19,6 +19,20 @@ namespace ElmishBrowser
                         selfWv.Dispose();
                     }
                 }); // regist property changed event of a denpendency property. 
+            DependencyPropertyDescriptor.FromProperty(GoForwardCacheProperty, typeof(BindableWebView))
+                .AddValueChanged(this, (sender, e) =>
+                {
+                    if (selfWv.CanGoForward)
+                        selfWv.GoForward();
+                });
+            DependencyPropertyDescriptor.FromProperty(GoBackCacheProperty, typeof(BindableWebView))
+                .AddValueChanged(this, (sender, e) =>
+                {
+                    if (selfWv.CanGoBack)
+                        selfWv.GoBack();
+                });
+            DependencyPropertyDescriptor.FromProperty(ReloadCacheProperty, typeof(BindableWebView))
+                .AddValueChanged(this, (sender, e) => selfWv.Reload());
             selfWv.CoreWebView2InitializationCompleted += (sender, e) =>
                 selfWv.CoreWebView2.NewWindowRequested += (sender, e) =>
                 {
@@ -27,6 +41,27 @@ namespace ElmishBrowser
                     RaiseEvent(new(newWindowRequest, selfWv));
                 };
         }
+        public byte ReloadCache
+        {
+            get { return (byte)GetValue(ReloadCacheProperty); }
+            set { SetValue(ReloadCacheProperty, value); }
+        }
+        public static readonly DependencyProperty ReloadCacheProperty =
+            DependencyProperty.Register("ReloadCache", typeof(byte), typeof(BindableWebView), new PropertyMetadata((byte)0));
+        public byte GoForwardCache
+        {
+            get { return (byte)GetValue(GoForwardCacheProperty); }
+            set { SetValue(GoForwardCacheProperty, value); }
+        }
+        public static readonly DependencyProperty GoForwardCacheProperty =
+            DependencyProperty.Register("GoForwardCache", typeof(byte), typeof(BindableWebView), new PropertyMetadata((byte)0));
+        public byte GoBackCache
+        {
+            get { return (byte)GetValue(GoBackCacheProperty); }
+            set { SetValue(GoBackCacheProperty, value); }
+        }
+        public static readonly DependencyProperty GoBackCacheProperty =
+            DependencyProperty.Register("GoBackCache", typeof(byte), typeof(BindableWebView), new PropertyMetadata((byte)0));
         public static readonly RoutedEvent newWindowRequest =
             EventManager.RegisterRoutedEvent("NewWindowRequest", RoutingStrategy.Bubble, typeof(RoutedEventArgs), typeof(BindableWebView));
         public event RoutedEventHandler NewWindowRequest

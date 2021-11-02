@@ -52,6 +52,9 @@ module Tab =
             Content: string 
             IsDisposed: bool 
             Address: string
+            GoForwardCache: byte
+            GoBackCache: byte
+            ReloadCache: byte
         }
     let it = 
         {
@@ -59,14 +62,23 @@ module Tab =
             Content = "Hello Elmish"
             IsDisposed = false
             Address = homePage
+            GoForwardCache = 0uy 
+            GoBackCache = 0uy
+            ReloadCache = 0uy
         }
     type TabMsg = 
         | Dispose 
         | ChangeAddress of string
+        | GoForward
+        | GoBack
+        | Reload
     let tabUpdate msg m = 
         match msg with 
         | Dispose -> { m with IsDisposed = true }
         | ChangeAddress uri -> { m with Address = uri; Content = uri |> Favicon.parse }
+        | GoForward -> { m with GoForwardCache = m.GoForwardCache + 1uy }
+        | GoBack -> { m with GoBackCache = m.GoBackCache + 1uy }
+        | Reload -> { m with ReloadCache = m.ReloadCache + 1uy }
 
 module App = 
     type Model =
@@ -85,6 +97,9 @@ module App =
         | RmAfterDisposing
         | ChangeWindowState of WindowState
         | SetAddress of Guid * string
+        | GoForward 
+        | GoBack
+        | Reload
     
     let init (*window*) =
         {
@@ -109,19 +124,34 @@ module App =
         | ChangeWindowState ws -> { m with MainWindowState = ws }, Cmd.none
         | SetAddress (guid, uri) -> { m with Tabs = m.Tabs |> idlist.mapAtId guid (tabUpdate (ChangeAddress uri)) }, 
                                     Cmd.none
+        | GoForward -> { m with Tabs = m.Tabs |> idlist.mapAtId m.SelectionId (tabUpdate TabMsg.GoForward) }, 
+                        Cmd.none
+        | GoBack -> { m with Tabs = m.Tabs |> idlist.mapAtId m.SelectionId (tabUpdate TabMsg.GoBack) }, 
+                    Cmd.none
+        | Reload -> { m with Tabs = m.Tabs |> idlist.mapAtId m.SelectionId (tabUpdate TabMsg.Reload) }, 
+                    Cmd.none
         | None -> m, Cmd.none
     let bindings () : Binding<Model, Msg> list = 
+        let changeState = function 
+            | WindowState.Normal -> ChangeWindowState WindowState.Maximized
+            | _ -> ChangeWindowState WindowState.Normal
         [
+            "ReloadCmd" |> Binding.cmd (fun _ -> Reload)
+            "ChangeStateCmd" |> Binding.cmd (fun m -> changeState m.MainWindowState)
+            "MinimizationCmd" |> Binding.cmd (fun _ -> ChangeWindowState WindowState.Minimized)
+            "ViewBorderThickness" |> Binding.oneWay(fun m -> 
+                if m.Tabs.Length <> 0 && m.MainWindowState = WindowState.Maximized
+                then 1 else 0
+            )
+            "GoBackCmd" |> Binding.cmd (fun _ -> GoBack)
+            "GoForwardCmd" |> Binding.cmd (fun _ -> GoForward)
             "ExitApp" |> Binding.cmd (fun _ -> Environment.Exit 0; None)
             "MainWindowState" |> Binding.twoWay ((fun m -> m.MainWindowState), ChangeWindowState)
             "MouseLeftBtnDownCmd" |> Binding.cmdParam(fun e m -> 
                 let args = e :?> System.Windows.Input.MouseButtonEventArgs
                 match args.ClickCount with 
                 | 1 -> (*m.MainWindow.DragMove()*)Application.Current.MainWindow.DragMove(); None
-                | 2 -> 
-                        match m.MainWindowState with 
-                        | WindowState.Normal -> ChangeWindowState WindowState.Maximized
-                        | _ -> ChangeWindowState WindowState.Normal
+                | 2 -> changeState m.MainWindowState
                 | _ -> None
             )
             "AddTabCmd" |> Binding.cmd (AddTab homePage)
@@ -151,6 +181,9 @@ module App =
                         let args = e :?> RoutedEventArgs 
                         let wv = args.OriginalSource :?> FrameworkElement // actually it is webview2
                         AddTab (wv.Tag :?> string))
+                    "GoForwardCache" |> Binding.oneWay(fun (m, t) -> t.GoForwardCache)
+                    "GoBackCache" |> Binding.oneWay(fun (m, t) -> t.GoBackCache)
+                    "ReloadCache" |> Binding.oneWay(fun (m, t) -> t.ReloadCache)
                 ]))
         ]
 
