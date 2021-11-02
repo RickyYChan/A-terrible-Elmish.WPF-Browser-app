@@ -37,37 +37,36 @@
                     <i:InvokeCommandAction PassEventArgsToCommand="True" Command="{Binding MouseLeftBtnDownCmd}"/>
                 </i:EventTrigger>
             </i:Interaction.Triggers>
-            <Button Content="🚫" 
-                    Padding="10, 0, 10 ,0"
-                    Style="{StaticResource ButtonAccentRevealStyle}" 
-                    DockPanel.Dock="Right" 
-                    HorizontalAlignment="Right"
-                    Background="Transparent" 
-                    BorderThickness="0" 
-                    BorderBrush="Transparent"
-                    Command="{Binding ExitApp}"
-                    ToolTip="Close"
-                    />
-            <Button Content="➕" 
-                    Padding="10, 0, 10 ,0"
-                    Style="{StaticResource ButtonRevealStyle}" 
-                    DockPanel.Dock="Right" 
-                    HorizontalAlignment="Right"
-                    Background="Transparent" 
-                    BorderThickness="0" 
-                    BorderBrush="Transparent"
-                    Command="{Binding AddTabCmd}"
-                    />
-            <Button Content="❌" 
-                    Padding="10, 0, 10 ,0"
-                    Style="{StaticResource ButtonRevealStyle}" 
-                    DockPanel.Dock="Right" 
-                    HorizontalAlignment="Right"
-                    Background="Transparent" 
-                    BorderThickness="0" 
-                    BorderBrush="Transparent"
-                    Command="{Binding RmTabCmd}"
-                    />
+            <StackPanel Orientation="Horizontal"
+                        DockPanel.Dock="Right"
+                        Background="Transparent"
+                        >
+                <Button Content="❌" 
+                        Padding="10, 0, 10 ,0"
+                        Style="{StaticResource ButtonRevealStyle}" 
+                        Background="Transparent" 
+                        BorderThickness="0" 
+                        BorderBrush="Transparent"
+                        Command="{Binding RmTabCmd}"
+                        />
+                <Button Content="➕" 
+                        Padding="10, 0, 10 ,0"
+                        Style="{StaticResource ButtonRevealStyle}" 
+                        Background="Transparent" 
+                        BorderThickness="0" 
+                        BorderBrush="Transparent"
+                        Command="{Binding AddTabCmd}"
+                        />
+                <Button Content="🚫" 
+                        Padding="10, 0, 10 ,0"
+                        Style="{StaticResource ButtonAccentRevealStyle}" 
+                        Background="Transparent" 
+                        BorderThickness="0" 
+                        BorderBrush="Transparent"
+                        Command="{Binding ExitApp}"
+                        ToolTip="Close"
+                        />
+            </StackPanel>
 
             <ItemsControl ItemsSource="{Binding TabSource}"
                           HorizontalAlignment="Left"
