@@ -28,7 +28,7 @@ namespace ElmishBrowser
                 };
         }
         public static readonly RoutedEvent newWindowRequest =
-                EventManager.RegisterRoutedEvent("NewWindowRequest", RoutingStrategy.Bubble, typeof(RoutedEventArgs), typeof(BindableWebView));
+            EventManager.RegisterRoutedEvent("NewWindowRequest", RoutingStrategy.Bubble, typeof(RoutedEventArgs), typeof(BindableWebView));
         public event RoutedEventHandler NewWindowRequest
         {
             add => AddHandler(newWindowRequest, value);

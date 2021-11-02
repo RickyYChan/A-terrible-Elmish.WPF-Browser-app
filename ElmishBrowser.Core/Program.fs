@@ -6,7 +6,6 @@ open Elmish.WPF
 open Elmish
 open System.Windows
 open System
-open Microsoft.Web.WebView2.Wpf
 
 [<AutoOpen>]
 module IdList = 
@@ -40,7 +39,9 @@ module IdList =
 module FwColor = 
     type Color = System.Windows.Media.Brushes
     let accent = System.Windows.Application.Current.Resources.["ImmersiveSystemAccentBrush"]
+    let baseMediumLow = System.Windows.Application.Current.Resources.["SystemBaseMediumLowColorBrush"]
     let transparent = Color.Transparent |> box
+    let baseLow = System.Windows.Application.Current.Resources.["SystemBaseLowColorBrush"]
 
 [<AutoOpen>]
 module Tab =
@@ -48,7 +49,7 @@ module Tab =
     type TabItem = 
         {
             Guid: Guid
-            Content: obj 
+            Content: string 
             IsDisposed: bool 
             Address: string
         }
@@ -65,7 +66,7 @@ module Tab =
     let tabUpdate msg m = 
         match msg with 
         | Dispose -> { m with IsDisposed = true }
-        | ChangeAddress uri -> { m with Address = uri }
+        | ChangeAddress uri -> { m with Address = uri; Content = uri |> Favicon.parse }
 
 module App = 
     type Model =
@@ -96,7 +97,7 @@ module App =
     let update msg m = 
         match msg with 
         | AddTab uri -> let id = idlist.genId()
-                        { m with Tabs = m.Tabs @ [{ it with Content = $"Hello {m.Tabs |> len}" 
+                        { m with Tabs = m.Tabs @ [{ it with Content = uri |> Favicon.parse
                                                             Guid = id
                                                             Address = uri }] }, 
                         Cmd.ofMsg (SelectOfGuid id)
@@ -132,8 +133,9 @@ module App =
                         "TabContent" |> Binding.oneWay(fun (m, t) -> t.Content) 
                         "SelectItem" |> Binding.cmd(fun (m, t) -> SelectOfGuid t.Guid)
                         "TabBg" |> Binding.oneWay(fun (m, t) -> 
-                            if t.Guid = m.SelectionId then accent else transparent)
+                            if t.Guid = m.SelectionId then baseMediumLow else transparent)
                         "DoubleClickCmd" |> Binding.cmd RmSelection
+                        "TabToolTip" |> Binding.oneWay(fun (m, t) -> t.Address)
                     ]))
             "ViewBorder" |> Binding.subModelSeq(
                 (fun m -> m.Tabs),
@@ -163,5 +165,7 @@ let main (window:Window) =
             .WriteTo.Console()
             .CreateLogger()
     WpfProgram.mkProgram (fun () -> App.init (*window*)) App.update App.bindings
+    #if DEBUG
     |> WpfProgram.withLogger (new SerilogLoggerFactory(logger))
+    #endif
     |> WpfProgram.startElmishLoop window
