@@ -38,7 +38,7 @@ module IdList =
 /// seems dirty.  
 module FwColor = 
     type Color = System.Windows.Media.Brushes
-    let accent = System.Windows.Application.Current.Resources.["ImmersiveSystemAccentBrush"]
+    let accent = System.Windows.Application.Current.Resources.["ImmersiveSystemAccent"]
     let baseMediumLow = System.Windows.Application.Current.Resources.["SystemBaseMediumLowColorBrush"]
     let transparent = Color.Transparent |> box
     let baseLow = System.Windows.Application.Current.Resources.["SystemBaseLowColorBrush"]

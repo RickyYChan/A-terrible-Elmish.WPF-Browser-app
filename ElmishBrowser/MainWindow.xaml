@@ -18,8 +18,6 @@
         >
     <Window.Resources>
         <Style TargetType="ToolTip">
-            <Setter Property="Background" Value="{x:Static fw:AccentColors.ImmersiveSystemAccentDark1Brush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource SystemBaseMediumHighColorBrush}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="FontFamily" Value="Consolas"/>
         </Style>
