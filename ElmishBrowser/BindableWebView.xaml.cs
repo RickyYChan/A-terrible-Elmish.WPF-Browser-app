@@ -19,6 +19,20 @@ namespace ElmishBrowser
                         selfWv.Dispose();
                     }
                 }); // regist property changed event of a denpendency property. 
+            selfWv.CoreWebView2InitializationCompleted += (sender, e) =>
+                selfWv.CoreWebView2.NewWindowRequested += (sender, e) =>
+                {
+                    e.Handled = true;
+                    selfWv.Tag = e.Uri;
+                    RaiseEvent(new(newWindowRequest, selfWv));
+                };
+        }
+        public static readonly RoutedEvent newWindowRequest =
+                EventManager.RegisterRoutedEvent("NewWindowRequest", RoutingStrategy.Bubble, typeof(RoutedEventArgs), typeof(BindableWebView));
+        public event RoutedEventHandler NewWindowRequest
+        {
+            add => AddHandler(newWindowRequest, value);
+            remove => RemoveHandler(newWindowRequest, value);
         }
         public string Address
         {

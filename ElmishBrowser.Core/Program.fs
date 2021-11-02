@@ -6,6 +6,7 @@ open Elmish.WPF
 open Elmish
 open System.Windows
 open System
+open Microsoft.Web.WebView2.Wpf
 
 [<AutoOpen>]
 module IdList = 
@@ -41,7 +42,7 @@ module FwColor =
     let accent = System.Windows.Application.Current.Resources.["ImmersiveSystemAccentBrush"]
     let transparent = Color.Transparent |> box
 
-[<AutoOpen>][<RequireQualifiedAccess>]
+[<AutoOpen; RequireQualifiedAccess>]
 module Tab =
     let homePage = "https://www.bing.com"
     type TabItem = 
@@ -144,6 +145,10 @@ module App =
                     "Address" |> Binding.twoWay (
                         (fun (m, t) -> t.Address), 
                         (fun uri (m, t) -> SetAddress(t.Guid, uri)))
+                    "NewWindowRequest" |> Binding.cmdParam(fun e m -> 
+                        let args = e :?> RoutedEventArgs 
+                        let wv = args.OriginalSource :?> FrameworkElement
+                        AddTab (wv.Tag :?> string))
                 ]))
         ]
 

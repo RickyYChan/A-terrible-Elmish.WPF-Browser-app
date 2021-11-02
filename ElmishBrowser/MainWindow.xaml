@@ -111,7 +111,12 @@
                     <local:BindableWebView Visibility="{Binding WvVisibility}"
                                            IsDisposed="{Binding IsDisposed}"
                                            Address="{Binding Address, Mode=TwoWay}"
-                                           />
+                                           >
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="NewWindowRequest">
+                                <i:InvokeCommandAction Command="{Binding NewWindowRequest}" PassEventArgsToCommand="True"/>                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </local:BindableWebView>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
             <ItemsControl.ItemsPanel>
