@@ -198,7 +198,5 @@ let main (window:Window) =
             .WriteTo.Console()
             .CreateLogger()
     WpfProgram.mkProgram (fun () -> App.init (*window*)) App.update App.bindings
-    #if DEBUG
     |> WpfProgram.withLogger (new SerilogLoggerFactory(logger))
-    #endif
     |> WpfProgram.startElmishLoop window
