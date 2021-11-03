@@ -17,6 +17,7 @@
         MinWidth="300"
         fw:AcrylicWindow.TintOpacity="0.25"
         fw:AcrylicWindow.NoiseOpacity="0"
+        WindowStartupLocation="CenterScreen"
         >
     <Window.Resources>
         <Style TargetType="ToolTip">
