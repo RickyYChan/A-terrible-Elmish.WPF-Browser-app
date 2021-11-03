@@ -9,12 +9,14 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800"
         fw:AcrylicWindow.Enabled="True"
-        fw:AcrylicWindow.FallbackColor="{DynamicResource SystemBaseHighColorBrush}"
+        fw:AcrylicWindow.FallbackColor="{DynamicResource SystemBaseLowColorBrush}"
         fw:AcrylicWindow.AcrylicWindowStyle="None"
         d:DataContext="{x:Static local:DesignViewModels.MainWindowDesignVm}"
         WindowState="{Binding MainWindowState, Mode=TwoWay}"
         MinHeight="200"
         MinWidth="300"
+        fw:AcrylicWindow.TintOpacity="0.25"
+        fw:AcrylicWindow.NoiseOpacity="0"
         >
     <Window.Resources>
         <Style TargetType="ToolTip">
@@ -36,12 +38,24 @@
                 <i:EventTrigger EventName="MouseLeftButtonDown">
                     <i:InvokeCommandAction PassEventArgsToCommand="True" Command="{Binding MouseLeftBtnDownCmd}"/>
                 </i:EventTrigger>
+                <i:EventTrigger EventName="MouseRightButtonDown">
+                    <i:InvokeCommandAction PassEventArgsToCommand="True" Command="{Binding TitleBarDoubleClickCmd}"/>
+                </i:EventTrigger>
             </i:Interaction.Triggers>
-            
+
             <StackPanel Orientation="Horizontal"
                         DockPanel.Dock="Right"
                         Background="Transparent"
                         >
+                <Button Content="🕹️" 
+                        Padding="10, 0, 10 ,0"
+                        Style="{StaticResource ButtonRevealStyle}" 
+                        Background="{Binding SettingBg}" 
+                        BorderThickness="0" 
+                        BorderBrush="Transparent"
+                        Command="{Binding ToSettingCmd}"
+                        ToolTip="Settings"
+                        />
                 <Button Content="◀️" 
                         Padding="10, 0, 10 ,0"
                         Style="{StaticResource ButtonRevealStyle}" 
@@ -50,6 +64,7 @@
                         BorderBrush="Transparent"
                         Command="{Binding GoBackCmd}"
                         ToolTip="Go Back"
+                        Visibility="{Binding BackVisibility}"
                         />
                 <Button Content="🔁" 
                         Padding="10, 0, 10 ,0"
@@ -68,6 +83,7 @@
                         BorderBrush="Transparent"
                         Command="{Binding GoForwardCmd}"
                         ToolTip="Go Forward"
+                        Visibility="{Binding ForwardVisibility}"
                         />
                 <Button Content="❌" 
                         Padding="10, 0, 10 ,0"
@@ -77,6 +93,7 @@
                         BorderBrush="Transparent"
                         Command="{Binding RmTabCmd}"
                         ToolTip="Remove Page"
+                        Visibility="{Binding RemoveVisibility}"
                         />
                 <Button Content="➕" 
                         Padding="10, 0, 10 ,0"
@@ -86,6 +103,7 @@
                         BorderBrush="Transparent"
                         Command="{Binding AddTabCmd}"
                         ToolTip="Add Page"
+                        Visibility="{Binding AddTabVisibility}"
                         />
                 <Button Content="➖" 
                         Padding="10, 0, 10 ,0"
@@ -95,6 +113,7 @@
                         BorderBrush="Transparent"
                         Command="{Binding MinimizationCmd}"
                         ToolTip="Minimize"
+                        Visibility="{Binding MinimizeVisibility}"
                         />
                 <Button Content="⬜" 
                         Padding="10, 0, 10 ,0"
@@ -104,6 +123,7 @@
                         BorderBrush="Transparent"
                         Command="{Binding ChangeStateCmd}"
                         ToolTip="Change State"
+                        Visibility="{Binding ChangeStateVisibility}"
                         />
                 <Button Content="🚫" 
                         Padding="10, 0, 10 ,0"
@@ -122,6 +142,7 @@
                           Background="Transparent"
                           BorderThickness="0"
                           BorderBrush="Transparent"
+                          Visibility="{Binding AllTabsVisibility}"
                           >
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
@@ -134,8 +155,8 @@
                                 Command="{Binding SelectItem}"
                                 >
                             <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="MouseDoubleClick">
-                                    <i:InvokeCommandAction Command="{Binding DoubleClickCmd}"/>
+                                <i:EventTrigger EventName="MouseRightButtonDown">
+                                    <i:InvokeCommandAction Command="{Binding RightClickCmd}"/>
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
                             <Border Margin="4, 4, 4, 4"
@@ -173,6 +194,7 @@
                       ItemsSource="{Binding ViewBorder}"
                       BorderBrush="{x:Static fw:AccentColors.ImmersiveSystemAccentBrush}"
                       BorderThickness="{Binding ViewBorderThickness}"
+                      Visibility="{Binding ViewBorderVisibility}"
                       >
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
@@ -185,7 +207,8 @@
                                            >
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="NewWindowRequest">
-                                <i:InvokeCommandAction Command="{Binding NewWindowRequest}" PassEventArgsToCommand="True"/>                            </i:EventTrigger>
+                                <i:InvokeCommandAction Command="{Binding NewWindowRequest}" PassEventArgsToCommand="True"/>
+                            </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </local:BindableWebView>
                 </DataTemplate>
@@ -196,6 +219,29 @@
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
         </ItemsControl>
+        <StackPanel Grid.Row="1" Visibility="{Binding SettingPageVisibility}">
+            <StackPanel.Resources>
+                <Style TargetType="TextBlock">
+                    <Style.Setters>
+                        <Setter Property="Foreground" Value="{DynamicResource SystemBaseHighColorBrush}"/>
+                        <Setter Property="Margin" Value="10, 5, 10, 5"/>
+                        <Setter Property="FontFamily" Value="Consolas"/>
+                        <Setter Property="FontSize" Value="16"/>
+                    </Style.Setters>
+                </Style>
+            </StackPanel.Resources>
+            <TextBlock Text="Mouse Command"/>
+            <TextBlock Text="Left Double Click TitleBar: Change Window State"/>
+            <TextBlock Text="Right Double Click TitleBar: Add New Page"/>
+            <TextBlock Text="Right Click Btn: Remove 'SELECTION' Tab And Page"/>
+            <CheckBox Content="Simple Tool Buttons"
+                      Foreground="{DynamicResource SystemBaseHighColorBrush}"
+                      Margin="10, 5, 10, 5"
+                      FontFamily="Consolas"
+                      FontSize="16"
+                      IsChecked="{Binding SimpleToolBtns}"
+                      />
+        </StackPanel>
     </Grid>
 
 </Window>

@@ -81,11 +81,14 @@ module Tab =
         | Reload -> { m with ReloadCache = m.ReloadCache + 1uy }
 
 module App = 
+    type Pages = ViewBorder | Settings
     type Model =
         { 
             Tabs: Tab.TabItem list
             SelectionId: Guid
             MainWindowState: WindowState
+            CurrentPage: Pages
+            SimpleToolBtns: bool
             //MainWindow: Window
         }
     
@@ -100,12 +103,16 @@ module App =
         | GoForward 
         | GoBack
         | Reload
+        | ChangePage of Pages
+        | SimpleBtns of bool
     
     let init (*window*) =
         {
             Tabs = []
             SelectionId = Guid.Empty
             MainWindowState = WindowState.Normal
+            CurrentPage = ViewBorder
+            SimpleToolBtns = false
             //MainWindow = window
         }, Cmd.none
     
@@ -130,12 +137,46 @@ module App =
                     Cmd.none
         | Reload -> { m with Tabs = m.Tabs |> idlist.mapAtId m.SelectionId (tabUpdate TabMsg.Reload) }, 
                     Cmd.none
+        | ChangePage page -> { m with CurrentPage = page }, Cmd.none
+        | SimpleBtns b -> { m with SimpleToolBtns = b }, Cmd.none
         | None -> m, Cmd.none
     let bindings () : Binding<Model, Msg> list = 
         let changeState = function 
             | WindowState.Normal -> ChangeWindowState WindowState.Maximized
             | _ -> ChangeWindowState WindowState.Normal
+        let showInSettingPage m = 
+            match m.CurrentPage with 
+            | Pages.ViewBorder -> Visibility.Hidden 
+            | _ -> Visibility.Visible
+        let showInViewPage m = 
+            match m.CurrentPage with 
+            | Pages.ViewBorder -> Visibility.Visible 
+            | _ -> Visibility.Hidden
+        let simpleBtn m = 
+            if m.SimpleToolBtns then Visibility.Collapsed else Visibility.Visible
         [
+            "TitleBarRightClickCmd" |> Binding.cmd (AddTab homePage)
+            "SettingBg" |> Binding.oneWay (fun m -> 
+                if m.CurrentPage = Pages.Settings
+                then baseMediumLow else transparent
+            )
+            "ForwardVisibility" |> Binding.oneWay simpleBtn
+            "BackVisibility" |> Binding.oneWay simpleBtn
+            "AddTabVisibility" |> Binding.oneWay simpleBtn
+            "MinimizeVisibility"|> Binding.oneWay simpleBtn
+            "RemoveVisibility" |> Binding.oneWay simpleBtn
+            "ChangeStateVisibility" |> Binding.oneWay simpleBtn
+            "SimpleToolBtns" |> Binding.twoWay((fun m -> m.SimpleToolBtns), 
+                SimpleBtns)
+            "SettingPageVisibility" |> Binding.oneWay showInSettingPage
+            "AllTabsVisibility" |> Binding.oneWay showInViewPage
+            "ViewBorderVisibility" |> Binding.oneWay showInViewPage
+            "ToSettingCmd" |> Binding.cmd(fun m -> 
+                match m.CurrentPage with 
+                | Pages.ViewBorder -> Pages.Settings
+                | _ -> Pages.ViewBorder
+                |> ChangePage
+            )
             "ReloadCmd" |> Binding.cmd (fun _ -> Reload)
             "ChangeStateCmd" |> Binding.cmd (fun m -> changeState m.MainWindowState)
             "MinimizationCmd" |> Binding.cmd (fun _ -> ChangeWindowState WindowState.Minimized)
@@ -147,10 +188,18 @@ module App =
             "GoForwardCmd" |> Binding.cmd (fun _ -> GoForward)
             "ExitApp" |> Binding.cmd (fun _ -> Environment.Exit 0; None)
             "MainWindowState" |> Binding.twoWay ((fun m -> m.MainWindowState), ChangeWindowState)
+            "TitleBarDoubleClickCmd" |> Binding.cmdParam(fun e m -> 
+                let args = e :?> System.Windows.Input.MouseButtonEventArgs
+                match args.ClickCount with 
+                | 2 -> AddTab homePage
+                | _ -> None
+            )
             "MouseLeftBtnDownCmd" |> Binding.cmdParam(fun e m -> 
                 let args = e :?> System.Windows.Input.MouseButtonEventArgs
                 match args.ClickCount with 
-                | 1 -> (*m.MainWindow.DragMove()*)Application.Current.MainWindow.DragMove(); None
+                | 1 -> (*m.MainWindow.DragMove()*)
+                        Application.Current.MainWindow.DragMove()
+                        None
                 | 2 -> changeState m.MainWindowState
                 | _ -> None
             )
@@ -164,7 +213,7 @@ module App =
                         "SelectItem" |> Binding.cmd(fun (m, t) -> SelectOfGuid t.Guid)
                         "TabBg" |> Binding.oneWay(fun (m, t) -> 
                             if t.Guid = m.SelectionId then baseMediumLow else transparent)
-                        "DoubleClickCmd" |> Binding.cmd RmSelection
+                        "RightClickCmd" |> Binding.cmd RmSelection
                         "TabToolTip" |> Binding.oneWay(fun (m, t) -> t.Address)
                     ]))
             "ViewBorder" |> Binding.subModelSeq(
@@ -186,7 +235,6 @@ module App =
                     "ReloadCache" |> Binding.oneWay(fun (m, t) -> t.ReloadCache)
                 ]))
         ]
-
 
 let getDesignVm (m:'model, b:Binding<'model, 'msg> list) = ViewModel.designInstance m b
 let main (window:Window) =
