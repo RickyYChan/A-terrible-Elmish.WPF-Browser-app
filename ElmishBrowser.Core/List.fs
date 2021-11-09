@@ -14,7 +14,7 @@ let updateAti mapping predicate l =
 let removeAti predicate l = 
     let rec ra ind predicate (l:list<'t>) cont = 
         match l with 
-        | [] -> cont ([]:list<'t>)
+        | [] -> cont []
         | hd::tl -> 
             if not (predicate ind hd)
             then ra (ind + 1) predicate tl (fun x -> cont (hd :: x))
