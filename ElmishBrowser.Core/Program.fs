@@ -35,12 +35,12 @@ module IdList =
 [<AutoOpen>]
 /// use static classes: System.Windows.Media.Brushes and System.Windows.Application.    
 /// can use mkProgramWithCmdMsg as an alternative.   
-/// seems dirty.  
+/// seems dirty.
 module FwColor = 
     type Color = System.Windows.Media.Brushes
     let accent = System.Windows.Application.Current.Resources.["ImmersiveSystemAccent"]
     let baseMediumLow = System.Windows.Application.Current.Resources.["SystemBaseMediumLowColorBrush"]
-    let transparent = Color.Transparent |> box
+    let transparent = Color.Transparent
     let baseLow = System.Windows.Application.Current.Resources.["SystemBaseLowColorBrush"]
 
 [<AutoOpen>]
