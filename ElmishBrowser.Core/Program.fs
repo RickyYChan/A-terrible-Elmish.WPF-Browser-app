@@ -17,9 +17,9 @@ module IdList =
         let inline guid (x:^T) = 
             (^T : (member Guid : Guid) x)
         let inline rmAtId id = 
-            List.filter (fun t -> guid t <> id)
+            List.removeAti (fun i x -> guid x <> id)
         let inline mapAtId id f = 
-            List.map (fun t -> if id = guid t then f t else t )
+            List.updateAti (fun i x -> f x) (fun i x -> (guid x) = id)
         let inline getIndexOfId id x = 
             if id = Guid.Empty 
             then -1 
@@ -79,7 +79,7 @@ module Tab =
         | GoForward -> { m with GoForwardCache = m.GoForwardCache + 1uy }
         | GoBack -> { m with GoBackCache = m.GoBackCache + 1uy }
         | Reload -> { m with ReloadCache = m.ReloadCache + 1uy }
-
+        
 module App = 
     type Pages = ViewBorder | Settings
     type Model =
